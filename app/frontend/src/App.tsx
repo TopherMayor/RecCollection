@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { ProtectedRoute } from "./components/auth";
 import {
   AuthProvider,
   UIProvider,
@@ -45,17 +46,32 @@ function App() {
                     {/* Auth */}
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <ProfilePage />
+                        </ProtectedRoute>
+                      }
+                    />
 
                     {/* Recipes */}
                     <Route path="/recipes" element={<RecipeListPage />} />
                     <Route
                       path="/recipes/create"
-                      element={<CreateRecipePage />}
+                      element={
+                        <ProtectedRoute>
+                          <CreateRecipePage />
+                        </ProtectedRoute>
+                      }
                     />
                     <Route
                       path="/recipes/saved"
-                      element={<SavedRecipesPage />}
+                      element={
+                        <ProtectedRoute>
+                          <SavedRecipesPage />
+                        </ProtectedRoute>
+                      }
                     />
                     <Route
                       path="/recipes/user/:username"
@@ -64,7 +80,14 @@ function App() {
                     <Route path="/recipes/:id" element={<RecipeDetailPage />} />
 
                     {/* Import */}
-                    <Route path="/import" element={<ImportPage />} />
+                    <Route
+                      path="/import"
+                      element={
+                        <ProtectedRoute>
+                          <ImportPage />
+                        </ProtectedRoute>
+                      }
+                    />
 
                     {/* Static Pages */}
                     <Route path="/about" element={<AboutPage />} />
