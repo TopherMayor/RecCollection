@@ -1,0 +1,153 @@
+{
+  "basicRecipe": {
+    "title": "Simple Pasta",
+    "description": "A quick and easy pasta dish perfect for weeknight dinners.",
+    "prepTime": 10,
+    "cookingTime": 15,
+    "servingSize": 4,
+    "difficultyLevel": "easy",
+    "ingredients": [
+      {
+        "name": "Pasta",
+        "quantity": 500,
+        "unit": "g"
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "Garlic",
+        "quantity": 3,
+        "unit": "cloves"
+      },
+      {
+        "name": "Tomato sauce",
+        "quantity": 400,
+        "unit": "ml"
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "tsp"
+      },
+      {
+        "name": "Pepper",
+        "quantity": 0.5,
+        "unit": "tsp"
+      }
+    ],
+    "instructions": [
+      {
+        "description": "Boil water in a large pot and add salt."
+      },
+      {
+        "description": "Add pasta to the boiling water and cook according to package instructions."
+      },
+      {
+        "description": "In a separate pan, heat olive oil and sauté minced garlic until fragrant."
+      },
+      {
+        "description": "Add tomato sauce to the pan and simmer for 5 minutes."
+      },
+      {
+        "description": "Drain pasta and add to the sauce. Toss to combine."
+      },
+      {
+        "description": "Season with salt and pepper to taste. Serve hot."
+      }
+    ],
+    "categories": ["Dinner", "Italian"],
+    "tags": ["quick", "easy", "pasta", "vegetarian"]
+  },
+  "complexRecipe": {
+    "title": "Beef Wellington",
+    "description": "A classic British dish consisting of beef tenderloin wrapped in puff pastry.",
+    "prepTime": 45,
+    "cookingTime": 60,
+    "servingSize": 6,
+    "difficultyLevel": "hard",
+    "ingredients": [
+      {
+        "name": "Beef tenderloin",
+        "quantity": 1.5,
+        "unit": "kg"
+      },
+      {
+        "name": "Puff pastry",
+        "quantity": 500,
+        "unit": "g"
+      },
+      {
+        "name": "Mushrooms",
+        "quantity": 400,
+        "unit": "g"
+      },
+      {
+        "name": "Prosciutto",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Dijon mustard",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "Egg",
+        "quantity": 1,
+        "unit": ""
+      },
+      {
+        "name": "Olive oil",
+        "quantity": 2,
+        "unit": "tbsp"
+      },
+      {
+        "name": "Salt",
+        "quantity": 1,
+        "unit": "tsp"
+      },
+      {
+        "name": "Pepper",
+        "quantity": 1,
+        "unit": "tsp"
+      }
+    ],
+    "instructions": [
+      {
+        "description": "Season the beef tenderloin with salt and pepper."
+      },
+      {
+        "description": "Heat olive oil in a pan and sear the beef on all sides until browned."
+      },
+      {
+        "description": "Remove the beef from the pan and let it cool. Brush with Dijon mustard."
+      },
+      {
+        "description": "Finely chop mushrooms and cook in the same pan until all moisture has evaporated."
+      },
+      {
+        "description": "Lay out prosciutto slices, spread the mushroom mixture on top, and place the beef in the center."
+      },
+      {
+        "description": "Wrap the beef with the prosciutto and mushroom mixture."
+      },
+      {
+        "description": "Roll out the puff pastry and wrap the beef in it, sealing the edges."
+      },
+      {
+        "description": "Beat the egg and brush the pastry with it."
+      },
+      {
+        "description": "Bake in a preheated oven at 200°C (390°F) for 40-45 minutes for medium-rare."
+      },
+      {
+        "description": "Let it rest for 10 minutes before slicing and serving."
+      }
+    ],
+    "categories": ["Dinner", "British"],
+    "tags": ["special occasion", "beef", "gourmet"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "reccollection",
+  "version": "1.0.0",
+  "description": "A recipe collection application",
+  "scripts": {
+    "dev": "cd app/frontend && bun run dev",
+    "build": "cd app/frontend && bun run build",
+    "preview": "cd app/frontend && bun run preview",
+    "test": "cd app/frontend && bun run test",
+    "test:watch": "cd app/frontend && bun run test:watch",
+    "test:coverage": "cd app/frontend && bun run test:coverage",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "e2e": "start-server-and-test dev http://localhost:5173 cypress:run",
+    "e2e:open": "start-server-and-test dev http://localhost:5173 cypress:open"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "cypress": "^14.2.1",
+    "start-server-and-test": "^2.0.11"
+  }
+}
