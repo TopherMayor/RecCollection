@@ -104,11 +104,36 @@ The project is currently in active development with the following components imp
 - Import functionality for social media recipes
 - Responsive design for mobile and desktop
 
+## Testing
+
+The project uses a comprehensive testing strategy:
+
+### Unit Testing
+
+Unit tests are written using Vitest and React Testing Library. Run the tests with:
+
+```bash
+bun run test        # Run all tests
+bun run test:watch  # Run tests in watch mode
+bun run test:coverage # Run tests with coverage report
+```
+
+### End-to-End Testing
+
+End-to-end tests are written using Cypress. Run the tests with:
+
+```bash
+bun run cypress:open  # Open Cypress Test Runner
+bun run cypress:run   # Run Cypress tests headlessly
+bun run e2e           # Start dev server and run tests
+bun run e2e:open      # Start dev server and open Cypress
+```
+
 ## Development Workflow
 
 1. Create a new branch for your feature or bug fix
 2. Make your changes
-3. Write tests for your changes
+3. Write tests for your changes (unit and E2E)
 4. Run the tests to ensure they pass
 5. Submit a pull request
 

@@ -9,10 +9,10 @@
     "test": "cd app/frontend && bun run test",
     "test:watch": "cd app/frontend && bun run test:watch",
     "test:coverage": "cd app/frontend && bun run test:coverage",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "e2e": "start-server-and-test dev http://localhost:5173 cypress:run",
-    "e2e:open": "start-server-and-test dev http://localhost:5173 cypress:open"
+    "cypress:open": "bun cypress open",
+    "cypress:run": "bun cypress run",
+    "e2e": "bun start-server-and-test dev http://localhost:5173 cypress:run",
+    "e2e:open": "bun start-server-and-test dev http://localhost:5173 cypress:open"
   },
   "dependencies": {},
   "devDependencies": {
