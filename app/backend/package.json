@@ -1,0 +1,37 @@
+{
+  "name": "reccollection-backend",
+  "module": "src/server.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/server.ts",
+    "build": "bun build src/server.ts --outdir dist",
+    "start": "bun run dist/server.js",
+    "db:generate": "bun drizzle-kit generate",
+    "db:migrate": "bun run src/db/migrate.ts",
+    "db:seed": "bun run src/db/seed.ts",
+    "db:setup": "bun run db:migrate && bun run db:seed",
+    "db:studio": "bun drizzle-kit studio",
+    "test": "bun test src/tests"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.9",
+    "drizzle-kit": "^0.30.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "@hono/zod-validator": "^0.4.3",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.41.0",
+    "hono": "^4.7.5",
+    "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.2"
+  }
+}

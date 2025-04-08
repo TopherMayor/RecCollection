@@ -1,0 +1,58 @@
+# Global AI Rules (v2.0)
+
+## Security Requirements
+
+- **Port Conflict Protocol**
+  - Immediate stop on port conflicts
+  - Never automatically:
+    - Kill processes
+    - Modify system configs
+    - Change ports without consent
+  - Required actions:
+    1. Identify port/process details
+    2. Generate error report in `/docs/errors.md`
+    3. Present user with:
+       - Process names/PIDs
+       - Port scan results
+       - Solution options
+    4. Wait for manual resolution
+
+## Development Standards
+
+- **Default Tech Stack**
+  bun, hono, react-router@7, drizzle, postgres
+
+- **Documentation Requirements**
+- Planning docs before coding
+- Research comparisons for major features
+- Implementation details updated weekly
+- All prerequisite backend requirements must be documented and implemented before the frontend.
+
+## User Interaction
+
+- **Required Confirmations**
+- Port conflicts
+- External dependencies
+- File overwrites
+- Notification every 5 minutes
+
+**_RULES_**
+This file contains the rules for the RecCollection project.
+RecCollection is a project that allows users to create and share recipes.
+Recipes can be created, edited, and deleted. They can also be imported from other sources like instagram or tiktok videos and posts.
+AI integration is used to generate recipe names and descriptions based on the ingredients and instructions provided from the user, video, or post.
+
+MVP is site that allows users to create and share recipes with AI integration that generates recipe names and descriptions based on the ingredients and instructions provided from the user, video, or post.
+
+**_TECH STACK_**
+Use Web Search to find the latest versions of the following technologies online and use the latest documentation
+
+- bun
+- hono
+- drizzle
+- tailwind
+- shadcn/ui
+- postgres
+- react
+- react router version 7
+- typescript
