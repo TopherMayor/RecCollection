@@ -4,9 +4,14 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { UIProvider } from "./context/UIContext";
-import { RecipeProvider } from "./context/RecipeContext";
+import {
+  AuthProvider,
+  UIProvider,
+  RecipeProvider,
+  CategoryProvider,
+  TagProvider,
+  StatsProvider,
+} from "./context";
 import {
   HomePage,
   LoginPage,
@@ -30,37 +35,49 @@ function App() {
       <AuthProvider>
         <UIProvider>
           <RecipeProvider>
-            <Routes>
-              {/* Home */}
-              <Route path="/" element={<HomePage />} />
+            <CategoryProvider>
+              <TagProvider>
+                <StatsProvider>
+                  <Routes>
+                    {/* Home */}
+                    <Route path="/" element={<HomePage />} />
 
-              {/* Auth */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+                    {/* Auth */}
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
 
-              {/* Recipes */}
-              <Route path="/recipes" element={<RecipeListPage />} />
-              <Route path="/recipes/create" element={<CreateRecipePage />} />
-              <Route path="/recipes/saved" element={<SavedRecipesPage />} />
-              <Route
-                path="/recipes/user/:username"
-                element={<UserRecipesPage />}
-              />
-              <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+                    {/* Recipes */}
+                    <Route path="/recipes" element={<RecipeListPage />} />
+                    <Route
+                      path="/recipes/create"
+                      element={<CreateRecipePage />}
+                    />
+                    <Route
+                      path="/recipes/saved"
+                      element={<SavedRecipesPage />}
+                    />
+                    <Route
+                      path="/recipes/user/:username"
+                      element={<UserRecipesPage />}
+                    />
+                    <Route path="/recipes/:id" element={<RecipeDetailPage />} />
 
-              {/* Import */}
-              <Route path="/import" element={<ImportPage />} />
+                    {/* Import */}
+                    <Route path="/import" element={<ImportPage />} />
 
-              {/* Static Pages */}
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
+                    {/* Static Pages */}
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
 
-              {/* Not Found */}
-              <Route path="/404" element={<NotFoundPage />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
+                    {/* Not Found */}
+                    <Route path="/404" element={<NotFoundPage />} />
+                    <Route path="*" element={<Navigate to="/404" replace />} />
+                  </Routes>
+                </StatsProvider>
+              </TagProvider>
+            </CategoryProvider>
           </RecipeProvider>
         </UIProvider>
       </AuthProvider>
