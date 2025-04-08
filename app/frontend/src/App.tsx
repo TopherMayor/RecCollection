@@ -15,6 +15,8 @@ import {
   RecipeListPage,
   RecipeDetailPage,
   CreateRecipePage,
+  UserRecipesPage,
+  SavedRecipesPage,
   ImportPage,
   NotFoundPage,
   AboutPage,
@@ -40,6 +42,11 @@ function App() {
               {/* Recipes */}
               <Route path="/recipes" element={<RecipeListPage />} />
               <Route path="/recipes/create" element={<CreateRecipePage />} />
+              <Route path="/recipes/saved" element={<SavedRecipesPage />} />
+              <Route
+                path="/recipes/user/:username"
+                element={<UserRecipesPage />}
+              />
               <Route path="/recipes/:id" element={<RecipeDetailPage />} />
 
               {/* Import */}

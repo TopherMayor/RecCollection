@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Button } from '../ui/Button';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "../ui/Button";
 
 export function Header() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   return (
     <header className="bg-white shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +47,7 @@ export function Header() {
               </Link>
             </nav>
           </div>
-          
+
           {/* User menu */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {user ? (
@@ -70,11 +70,13 @@ export function Header() {
                     </div>
                   )}
                 </button>
-                
+
                 {isMenuOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                      <p className="font-medium">{user.displayName || user.username}</p>
+                      <p className="font-medium">
+                        {user.displayName || user.username}
+                      </p>
                       <p className="text-gray-500">{user.email}</p>
                     </div>
                     <Link
@@ -85,7 +87,7 @@ export function Header() {
                       Your Profile
                     </Link>
                     <Link
-                      to="/recipes/my"
+                      to={`/recipes/user/${user.username}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsMenuOpen(false)}
                     >
@@ -123,7 +125,7 @@ export function Header() {
               </div>
             )}
           </div>
-          
+
           {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">
             <button
@@ -169,7 +171,7 @@ export function Header() {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="sm:hidden">
@@ -205,7 +207,7 @@ export function Header() {
               Import
             </Link>
           </div>
-          
+
           {user ? (
             <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="flex items-center px-4">
@@ -240,7 +242,7 @@ export function Header() {
                   Your Profile
                 </Link>
                 <Link
-                  to="/recipes/my"
+                  to={`/recipes/user/${user.username}`}
                   className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >

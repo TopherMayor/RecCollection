@@ -1,19 +1,20 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { MainLayout } from '../components/layout/MainLayout';
-import { Button, Card, CardContent } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
-import { useRecipes } from '../context/RecipeContext';
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { MainLayout } from "../components/layout/MainLayout";
+import { Button, Card, CardContent } from "../components/ui";
+import { CategoryList, TagCloud, RecipeStats } from "../components/recipes";
+import { useAuth } from "../context/AuthContext";
+import { useRecipes } from "../context/RecipeContext";
 
 export function HomePage() {
   const { user } = useAuth();
   const { recipes, loading, fetchRecipes } = useRecipes();
-  
+
   // Fetch featured recipes on mount
   useEffect(() => {
     fetchRecipes({ limit: 6 });
   }, [fetchRecipes]);
-  
+
   return (
     <MainLayout>
       {/* Hero section */}
@@ -25,11 +26,17 @@ export function HomePage() {
                 Your Recipe Collection
               </h1>
               <p className="text-xl max-w-3xl mb-8">
-                Discover, create, and share your favorite recipes. Import from social media, organize your collection, and cook with confidence.
+                Discover, create, and share your favorite recipes. Import from
+                social media, organize your collection, and cook with
+                confidence.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/recipes">
-                  <Button size="lg" variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white text-blue-600 hover:bg-blue-50"
+                  >
                     Browse Recipes
                   </Button>
                 </Link>
@@ -54,16 +61,19 @@ export function HomePage() {
           </div>
         </div>
       </div>
-      
+
       {/* Featured recipes */}
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Featured Recipes</h2>
-          <Link to="/recipes" className="text-blue-600 hover:text-blue-800 font-medium">
+          <Link
+            to="/recipes"
+            className="text-blue-600 hover:text-blue-800 font-medium"
+          >
             View all recipes →
           </Link>
         </div>
-        
+
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
@@ -71,7 +81,9 @@ export function HomePage() {
           </div>
         ) : recipes.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <h3 className="text-xl font-medium text-gray-600 mb-4">No recipes found</h3>
+            <h3 className="text-xl font-medium text-gray-600 mb-4">
+              No recipes found
+            </h3>
             {user ? (
               <Link to="/recipes/create">
                 <Button>Create Your First Recipe</Button>
@@ -101,8 +113,12 @@ export function HomePage() {
                     )}
                   </div>
                   <CardContent>
-                    <h3 className="text-xl font-bold mb-2 line-clamp-1">{recipe.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">{recipe.description}</p>
+                    <h3 className="text-xl font-bold mb-2 line-clamp-1">
+                      {recipe.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">
+                      {recipe.description}
+                    </p>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
                         {recipe.user.avatarUrl ? (
@@ -143,7 +159,7 @@ export function HomePage() {
           </div>
         )}
       </div>
-      
+
       {/* Features section */}
       <div className="mb-12">
         <h2 className="text-3xl font-bold mb-8 text-center">Features</h2>
@@ -216,12 +232,149 @@ export function HomePage() {
           </div>
         </div>
       </div>
-      
+
+      {/* Browse by category and tags */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="md:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <CategoryList title="Browse by Category" limit={6} />
+            <TagCloud title="Popular Tags" limit={12} />
+          </div>
+          <RecipeStats />
+        </div>
+        <div>
+          <Card>
+            <CardContent>
+              <h2 className="text-xl font-bold mb-4">Quick Links</h2>
+              <div className="space-y-2">
+                <Link
+                  to="/recipes"
+                  className="block p-2 hover:bg-gray-50 rounded-md transition-colors"
+                >
+                  <div className="flex items-center">
+                    <svg
+                      className="h-5 w-5 text-blue-500 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span>All Recipes</span>
+                  </div>
+                </Link>
+                {user && (
+                  <>
+                    <Link
+                      to="/recipes/create"
+                      className="block p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <svg
+                          className="h-5 w-5 text-green-500 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                        <span>Create Recipe</span>
+                      </div>
+                    </Link>
+                    <Link
+                      to={`/recipes/user/${user.username}`}
+                      className="block p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <svg
+                          className="h-5 w-5 text-purple-500 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        <span>Your Recipes</span>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/recipes/saved"
+                      className="block p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <svg
+                          className="h-5 w-5 text-red-500 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                        <span>Saved Recipes</span>
+                      </div>
+                    </Link>
+                  </>
+                )}
+                <Link
+                  to="/import"
+                  className="block p-2 hover:bg-gray-50 rounded-md transition-colors"
+                >
+                  <div className="flex items-center">
+                    <svg
+                      className="h-5 w-5 text-yellow-500 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                    <span>Import Recipes</span>
+                  </div>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* CTA section */}
       <div className="bg-gray-50 rounded-lg p-8 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to start your recipe collection?</h2>
+        <h2 className="text-3xl font-bold mb-4">
+          Ready to start your recipe collection?
+        </h2>
         <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
-          Join thousands of home cooks who use RecCollection to organize, discover, and share their favorite recipes.
+          Join thousands of home cooks who use RecCollection to organize,
+          discover, and share their favorite recipes.
         </p>
         {user ? (
           <Link to="/recipes/create">
