@@ -1,63 +1,29 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader } from '../ui';
-import { useUI } from '../../context/UIContext';
-
-// Mock categories for now
-const MOCK_CATEGORIES = [
-  { id: 1, name: 'Breakfast', count: 42 },
-  { id: 2, name: 'Lunch', count: 37 },
-  { id: 3, name: 'Dinner', count: 56 },
-  { id: 4, name: 'Dessert', count: 28 },
-  { id: 5, name: 'Appetizer', count: 19 },
-  { id: 6, name: 'Snack', count: 23 },
-  { id: 7, name: 'Vegetarian', count: 31 },
-  { id: 8, name: 'Vegan', count: 17 },
-  { id: 9, name: 'Gluten-Free', count: 14 },
-  { id: 10, name: 'Keto', count: 11 },
-];
-
-interface Category {
-  id: number;
-  name: string;
-  count: number;
-}
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader } from "../ui";
+import { useCategories } from "../../context/CategoryContext";
 
 interface CategoryListProps {
   title?: string;
   limit?: number;
 }
 
-export function CategoryList({ title = 'Categories', limit }: CategoryListProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { showToast } = useUI();
-  
+export function CategoryList({
+  title = "Categories",
+  limit,
+}: CategoryListProps) {
+  const { popularCategories, loading, fetchPopularCategories } =
+    useCategories();
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      
-      try {
-        // In a real app, we would fetch categories from the API
-        // const response = await categoryService.getCategories();
-        // setCategories(response.data);
-        
-        // Mock implementation
-        setTimeout(() => {
-          setCategories(MOCK_CATEGORIES);
-          setLoading(false);
-        }, 500);
-      } catch (error) {
-        showToast('Failed to load categories', 'error');
-        setLoading(false);
-      }
-    };
-    
-    fetchCategories();
-  }, [showToast]);
-  
-  const displayCategories = limit ? categories.slice(0, limit) : categories;
-  
+    // Fetch popular categories when component mounts
+    fetchPopularCategories(limit ? limit * 2 : 20); // Fetch more than needed in case we want to show "View all"
+  }, [fetchPopularCategories, limit]);
+
+  const displayCategories = limit
+    ? popularCategories.slice(0, limit)
+    : popularCategories;
+
   return (
     <Card>
       <CardHeader>
@@ -84,8 +50,8 @@ export function CategoryList({ title = 'Categories', limit }: CategoryListProps)
                 </span>
               </Link>
             ))}
-            
-            {limit && categories.length > limit && (
+
+            {limit && popularCategories.length > limit && (
               <Link
                 to="/categories"
                 className="block text-center text-blue-600 hover:text-blue-800 font-medium mt-4"
