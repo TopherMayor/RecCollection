@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { UIProvider } from "./context/UIContext";
+import { RecipeProvider } from "./context/RecipeContext";
+import {
+  HomePage,
+  LoginPage,
+  RegisterPage,
+  ProfilePage,
+  RecipeListPage,
+  RecipeDetailPage,
+  CreateRecipePage,
+  ImportPage,
+  NotFoundPage,
+  AboutPage,
+  PrivacyPage,
+  TermsPage,
+} from "./pages";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <AuthProvider>
+        <UIProvider>
+          <RecipeProvider>
+            <Routes>
+              {/* Home */}
+              <Route path="/" element={<HomePage />} />
+
+              {/* Auth */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+
+              {/* Recipes */}
+              <Route path="/recipes" element={<RecipeListPage />} />
+              <Route path="/recipes/create" element={<CreateRecipePage />} />
+              <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+
+              {/* Import */}
+              <Route path="/import" element={<ImportPage />} />
+
+              {/* Static Pages */}
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+
+              {/* Not Found */}
+              <Route path="/404" element={<NotFoundPage />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
+          </RecipeProvider>
+        </UIProvider>
+      </AuthProvider>
+    </Router>
+  );
 }
 
-export default App
+export default App;
