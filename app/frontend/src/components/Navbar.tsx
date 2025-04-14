@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import SearchBar from "./SearchBar";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -61,6 +63,11 @@ export default function Navbar() {
               )}
             </div>
           </div>
+          {/* Search bar for desktop */}
+          <div className="hidden md:flex md:items-center md:ml-4 flex-1 max-w-lg">
+            {isAuthenticated && <SearchBar className="w-full" />}
+          </div>
+
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {isAuthenticated ? (
               <>
@@ -110,6 +117,29 @@ export default function Navbar() {
             )}
           </div>
           <div className="-mr-2 flex items-center sm:hidden">
+            {isAuthenticated && (
+              <button
+                type="button"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 mr-1"
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+              >
+                <span className="sr-only">Search</span>
+                <svg
+                  className="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+            )}
             <button
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -255,6 +285,42 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Mobile search overlay */}
+      {isSearchOpen && isAuthenticated && (
+        <div className="fixed inset-0 z-50 bg-gray-800 bg-opacity-75 flex items-start justify-center pt-16 px-4">
+          <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+            <div className="p-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-medium">Search</h2>
+                <button
+                  onClick={() => setIsSearchOpen(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <SearchBar
+                isMobile={true}
+                onClose={() => setIsSearchOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
