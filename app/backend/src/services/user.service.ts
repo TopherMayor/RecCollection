@@ -1,4 +1,4 @@
-import { eq, sql, like, or, desc } from "drizzle-orm";
+import { eq, sql, like, or, desc, and, count } from "drizzle-orm";
 import { db, schema } from "../db";
 import { hashPassword, verifyPassword, generateToken } from "../utils/auth";
 import { HTTPException } from "hono/http-exception";
@@ -184,6 +184,9 @@ export class UserService {
 
         console.log("UserService: Like count result:", likeCount);
 
+        // Get follower and following counts
+        const followCounts = await this.getUserFollowCounts(user.id);
+
         const result = {
           id: user.id,
           username: user.username,
@@ -192,8 +195,10 @@ export class UserService {
           avatarUrl: user.avatarUrl,
           createdAt: user.createdAt,
           stats: {
-            recipeCount: parseInt(recipeCount[0]?.count as string) || 0,
-            likeCount: parseInt(likeCount[0]?.count as string) || 0,
+            recipeCount: Number(recipeCount[0]?.count) || 0,
+            likeCount: Number(likeCount[0]?.count) || 0,
+            followerCount: followCounts.followerCount,
+            followingCount: followCounts.followingCount,
           },
         };
 
@@ -309,6 +314,183 @@ export class UserService {
         limit,
         totalPages: Math.ceil(count / limit),
       },
+    };
+  }
+
+  // Follow a user
+  async followUser(followerId: number, followingId: number) {
+    // Check if users exist
+    const follower = await db.query.users.findFirst({
+      where: eq(schema.users.id, followerId),
+    });
+
+    if (!follower) {
+      throw new HTTPException(404, { message: "Follower user not found" });
+    }
+
+    const following = await db.query.users.findFirst({
+      where: eq(schema.users.id, followingId),
+    });
+
+    if (!following) {
+      throw new HTTPException(404, { message: "User to follow not found" });
+    }
+
+    // Check if already following
+    const existingFollow = await db.query.follows.findFirst({
+      where: and(
+        eq(schema.follows.followerId, followerId),
+        eq(schema.follows.followingId, followingId)
+      ),
+    });
+
+    if (existingFollow) {
+      throw new HTTPException(400, { message: "Already following this user" });
+    }
+
+    // Create follow relationship
+    await db.insert(schema.follows).values({
+      followerId,
+      followingId,
+    });
+
+    return { success: true };
+  }
+
+  // Unfollow a user
+  async unfollowUser(followerId: number, followingId: number) {
+    // Check if the follow relationship exists
+    const existingFollow = await db.query.follows.findFirst({
+      where: and(
+        eq(schema.follows.followerId, followerId),
+        eq(schema.follows.followingId, followingId)
+      ),
+    });
+
+    if (!existingFollow) {
+      throw new HTTPException(400, { message: "Not following this user" });
+    }
+
+    // Delete the follow relationship
+    await db
+      .delete(schema.follows)
+      .where(
+        and(
+          eq(schema.follows.followerId, followerId),
+          eq(schema.follows.followingId, followingId)
+        )
+      );
+
+    return { success: true };
+  }
+
+  // Check if a user is following another user
+  async isFollowing(followerId: number, followingId: number) {
+    const follow = await db.query.follows.findFirst({
+      where: and(
+        eq(schema.follows.followerId, followerId),
+        eq(schema.follows.followingId, followingId)
+      ),
+    });
+
+    return { isFollowing: !!follow };
+  }
+
+  // Get user's followers
+  async getUserFollowers(userId: number, page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.follows)
+      .where(eq(schema.follows.followingId, userId));
+
+    const count = countResult[0]?.count || 0;
+
+    // Get followers
+    const followers = await db
+      .select({
+        id: schema.users.id,
+        username: schema.users.username,
+        displayName: schema.users.displayName,
+        avatarUrl: schema.users.avatarUrl,
+        createdAt: schema.follows.createdAt,
+      })
+      .from(schema.follows)
+      .innerJoin(schema.users, eq(schema.follows.followerId, schema.users.id))
+      .where(eq(schema.follows.followingId, userId))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(schema.follows.createdAt));
+
+    return {
+      followers,
+      pagination: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
+  }
+
+  // Get users that a user is following
+  async getUserFollowing(userId: number, page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.follows)
+      .where(eq(schema.follows.followerId, userId));
+
+    const count = countResult[0]?.count || 0;
+
+    // Get following
+    const following = await db
+      .select({
+        id: schema.users.id,
+        username: schema.users.username,
+        displayName: schema.users.displayName,
+        avatarUrl: schema.users.avatarUrl,
+        createdAt: schema.follows.createdAt,
+      })
+      .from(schema.follows)
+      .innerJoin(schema.users, eq(schema.follows.followingId, schema.users.id))
+      .where(eq(schema.follows.followerId, userId))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(schema.follows.createdAt));
+
+    return {
+      following,
+      pagination: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
+  }
+
+  // Get user's follow counts
+  async getUserFollowCounts(userId: number) {
+    // Get follower count
+    const followerCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.follows)
+      .where(eq(schema.follows.followingId, userId));
+
+    // Get following count
+    const followingCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.follows)
+      .where(eq(schema.follows.followerId, userId));
+
+    return {
+      followerCount: followerCountResult[0]?.count || 0,
+      followingCount: followingCountResult[0]?.count || 0,
     };
   }
 }
