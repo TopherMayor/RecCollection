@@ -47,6 +47,7 @@ Detailed documentation is available in the `docs` directory:
 - [Frontend Components](docs/frontend_components.md)
 - [AI Integration](docs/ai_integration.md)
 - [Social Media Import](docs/social_media_import.md)
+- [Image Handling](docs/image_handling.md)
 - [Testing Strategy](docs/testing_strategy.md)
 - [Deployment Strategy](docs/deployment_strategy.md)
 - [Security Considerations](docs/security_considerations.md)
