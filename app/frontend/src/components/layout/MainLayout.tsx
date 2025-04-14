@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { ToastContainer } from '../ui/Toast';
-import { Modal } from '../ui/Modal';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -18,8 +16,6 @@ export function MainLayout({ children }: MainLayoutProps) {
         </div>
       </main>
       <Footer />
-      <ToastContainer />
-      <Modal />
     </div>
   );
 }
