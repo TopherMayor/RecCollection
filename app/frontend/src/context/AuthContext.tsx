@@ -1,164 +1,343 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, User, LoginData, RegisterData, UpdateProfileData } from '../api/auth';
+import { createContext, useState, useEffect, ReactNode } from "react";
+import { api } from "../api";
 
-// Context type
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  displayName?: string;
+  avatarUrl?: string;
+}
+
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
-  error: string | null;
-  login: (data: LoginData) => Promise<boolean>;
-  register: (data: RegisterData) => Promise<boolean>;
-  logout: () => void;
-  updateProfile: (data: UpdateProfileData) => Promise<boolean>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (userData: {
+    username: string;
+    email: string;
+    password: string;
+    displayName?: string;
+  }) => Promise<void>;
 }
 
-// Create context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
-// Provider props
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-// Auth provider component
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load user on mount
+  // Check for stored auth state on component mount
   useEffect(() => {
-    const loadUser = async () => {
-      // Check if token exists
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      
+    console.log(
+      "%c AuthContext: Initializing",
+      "background: #4b0082; color: white; font-size: 14px;"
+    );
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    console.log("Stored token exists:", !!storedToken);
+    console.log("Stored user exists:", !!storedUser);
+
+    // Clear any redirect count on initial load
+    if (window.location.search.includes("auth=fresh")) {
+      localStorage.removeItem("redirectCount");
+      console.log("Fresh auth detected, cleared redirect count");
+    }
+
+    if (storedUser && storedToken) {
       try {
-        // Get current user
-        const response = await authService.getCurrentUser();
-        
-        if (response.data) {
-          setUser(response.data);
-        } else {
-          // Clear token if invalid
-          localStorage.removeItem('token');
-          setError(response.error || 'Failed to load user');
+        // Try to parse the stored user data
+        const userData = JSON.parse(storedUser);
+        console.log("Found stored user data:", userData);
+        console.log(
+          "User ID type:",
+          typeof userData.id,
+          "User ID value:",
+          userData.id
+        );
+
+        // Ensure user ID is a number
+        if (typeof userData.id === "string") {
+          userData.id = parseInt(userData.id, 10);
+          console.log("Converted user ID to number:", userData.id);
+        }
+
+        // Set the user state directly
+        setUser(userData);
+        console.log(
+          "%c User state set from localStorage",
+          "background: green; color: white; font-size: 14px;"
+        );
+        console.log("Final user state:", userData);
+
+        // Set the token in the API client
+        api.setAuthToken(storedToken);
+        console.log("Set auth token in API client");
+      } catch (err) {
+        console.error("Error parsing stored user data:", err);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("redirectCount");
+      }
+    } else {
+      console.log("No stored user data or token found");
+      // Ensure user is null if no stored data
+      setUser(null);
+    }
+
+    // Check if user is already logged in with the server
+    const checkAuthStatus = async () => {
+      try {
+        // If we have a fresh auth from the URL parameter, skip server check
+        if (window.location.search.includes("auth=fresh")) {
+          console.log(
+            "%c Fresh auth detected, skipping server check",
+            "background: green; color: white; font-size: 14px;"
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        if (!storedToken) {
+          console.log("No stored token, skipping server auth check");
+          setIsLoading(false);
+          return;
+        }
+
+        console.log(
+          "%c Checking authentication status with server...",
+          "background: blue; color: white; font-size: 14px;"
+        );
+        console.log(
+          "Using token:",
+          storedToken ? "[token exists]" : "[no token]"
+        );
+        setIsLoading(true);
+
+        try {
+          const data = await api.auth.me();
+          console.log("Server auth check response:", data);
+
+          if (data && data.user) {
+            console.log(
+              "%c Server confirmed user is authenticated",
+              "background: green; color: white; font-size: 14px;"
+            );
+            console.log("User data from server:", data.user);
+            console.log(
+              "User ID type from server:",
+              typeof data.user.id,
+              "User ID value:",
+              data.user.id
+            );
+
+            // Ensure user ID is a number for consistency
+            if (typeof data.user.id === "string") {
+              data.user.id = parseInt(data.user.id, 10);
+              console.log("Converted user ID to number:", data.user.id);
+            }
+
+            setUser(data.user);
+            // Update stored user data
+            localStorage.setItem("user", JSON.stringify(data.user));
+            console.log(
+              "Updated stored user data with ID type:",
+              typeof data.user.id
+            );
+            // Clear any redirect count
+            localStorage.removeItem("redirectCount");
+          } else {
+            // Server says not authenticated, we should clear all stored data
+            console.log(
+              "%c Server says not authenticated - clearing all stored data",
+              "background: red; color: white; font-size: 14px;"
+            );
+
+            // Clear stored data as it's invalid
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("redirectCount");
+            api.setAuthToken(""); // Clear token in API client
+            setUser(null);
+            console.log("Cleared stored auth data");
+          }
+        } catch (apiErr) {
+          console.log(
+            "%c API call failed, clearing stored data for security",
+            "background: red; color: white; font-size: 14px;"
+          );
+          console.error("Error checking auth status:", apiErr);
+
+          // For security, clear stored data if we can't verify with the server
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          localStorage.removeItem("redirectCount");
+          api.setAuthToken(""); // Clear token in API client
+          setUser(null);
+          console.log("Cleared stored auth data due to API error");
         }
       } catch (err) {
-        setError('An unexpected error occurred');
-        localStorage.removeItem('token');
+        // Not authenticated, that's okay
+        console.log(
+          "%c Auth check failed",
+          "background: red; color: white; font-size: 14px;",
+          err
+        );
+        // Clear stored data
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        api.setAuthToken(""); // Clear token in API client
+        setUser(null);
+        console.log("Cleared stored auth data due to error");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        console.log("Auth check completed, isLoading set to false");
       }
     };
-    
-    loadUser();
+
+    checkAuthStatus();
   }, []);
 
-  // Login function
-  const login = async (data: LoginData): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    
+  const login = async (email: string, password: string) => {
+    console.log(
+      "%c Login function called",
+      "background: orange; color: black; font-size: 14px;"
+    );
+    console.log("Email:", email);
+    setIsLoading(true);
     try {
-      const response = await authService.login(data);
-      
-      if (response.data) {
-        // Save token and user
-        localStorage.setItem('token', response.data.token);
-        setUser(response.data.user);
-        return true;
+      console.log("Calling API login...");
+      const data = await api.auth.login(email, password);
+      console.log("Login API response:", data);
+
+      if (data && data.user && data.token) {
+        console.log(
+          "%c Login successful",
+          "background: green; color: white; font-size: 14px;"
+        );
+        console.log("Setting user in auth context:", data.user);
+        console.log(
+          "User ID type:",
+          typeof data.user.id,
+          "User ID value:",
+          data.user.id
+        );
+
+        // Ensure user ID is a number for consistency
+        if (typeof data.user.id === "string") {
+          data.user.id = parseInt(data.user.id, 10);
+          console.log("Converted user ID to number:", data.user.id);
+        }
+
+        // First set the token in the API client
+        api.setAuthToken(data.token);
+        console.log("Set auth token in API client");
+
+        // Then store user data and token in localStorage for persistence
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        console.log(
+          "Stored user data and token in localStorage with ID type:",
+          typeof data.user.id
+        );
+
+        // Finally update the user state
+        setUser(data.user);
+        console.log("Updated user state in context");
+
+        // Verify localStorage was updated
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+        console.log("Verified localStorage updates:");
+        console.log("- User stored:", !!storedUser);
+        console.log("- Token stored:", !!storedToken);
+        console.log("- isAuthenticated will be set to:", true);
       } else {
-        setError(response.error || 'Login failed');
-        return false;
+        console.error(
+          "%c Login failed: Invalid response",
+          "background: red; color: white; font-size: 14px;"
+        );
+        console.error("Login API response missing user data or token:", data);
+        throw new Error("Invalid login response");
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
-      return false;
+    } catch (error) {
+      console.error(
+        "%c Login error",
+        "background: red; color: white; font-size: 14px;",
+        error
+      );
+      throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+      console.log("Login process completed, isLoading set to false");
     }
   };
 
-  // Register function
-  const register = async (data: RegisterData): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    
+  const logout = async () => {
+    setIsLoading(true);
     try {
-      const response = await authService.register(data);
-      
-      if (response.data) {
-        // Save token and user
-        localStorage.setItem('token', response.data.token);
-        setUser(response.data.user);
-        return true;
-      } else {
-        setError(response.error || 'Registration failed');
-        return false;
-      }
-    } catch (err) {
-      setError('An unexpected error occurred');
-      return false;
+      // No need to call the backend for logout with JWT
+      // Just clear the local state
+
+      // Clear user from state
+      setUser(null);
+      // Clear user and token from localStorage
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("redirectCount");
+      // Clear the Authorization header
+      api.setAuthToken("");
+      console.log(
+        "%c User logged out and localStorage cleared",
+        "background: green; color: white; font-size: 14px;"
+      );
+    } catch (error) {
+      console.error(
+        "%c Error during logout",
+        "background: red; color: white; font-size: 14px;",
+        error
+      );
+      // Still clear local state even if there's an error
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("redirectCount");
+      api.setAuthToken("");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Logout function
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
-
-  // Update profile function
-  const updateProfile = async (data: UpdateProfileData): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    
+  const register = async (userData: {
+    username: string;
+    email: string;
+    password: string;
+    displayName?: string;
+  }) => {
+    setIsLoading(true);
     try {
-      const response = await authService.updateProfile(data);
-      
-      if (response.data) {
-        setUser(response.data);
-        return true;
-      } else {
-        setError(response.error || 'Failed to update profile');
-        return false;
-      }
-    } catch (err) {
-      setError('An unexpected error occurred');
-      return false;
+      await api.auth.register(userData);
+      // Note: We don't automatically log the user in after registration
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Context value
   const value = {
     user,
-    loading,
-    error,
+    isAuthenticated: !!user,
+    isLoading,
     login,
-    register,
     logout,
-    updateProfile,
+    register,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Custom hook to use auth context
-export function useAuth() {
-  const context = useContext(AuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  
-  return context;
-}
+// useAuth hook moved to separate file

@@ -47,10 +47,59 @@ export default function EditRecipe() {
 
         if (recipe) {
           console.log("Recipe fetched:", recipe);
+          console.log(
+            "Recipe user ID (type):",
+            recipe.userId,
+            typeof recipe.userId
+          );
           console.log("Current user:", user);
+          console.log("User ID (type):", user?.id, typeof user?.id);
+          console.log(
+            "Equality check:",
+            recipe.userId === user?.id,
+            "Strict equality:",
+            recipe.userId === user?.id
+          );
+
+          // Try different comparison methods
+          const stringComparison = String(recipe.userId) === String(user?.id);
+          console.log("String comparison:", stringComparison);
 
           // Check if the user is the owner of the recipe
-          if (user && recipe.userId === user.id) {
+          // Try multiple comparison methods to handle potential type mismatches
+          const recipeUserId = recipe.userId;
+          const currentUserId = user?.id;
+
+          // Log all the different ways we might compare these values
+          console.log(
+            `Recipe owner ID: ${recipeUserId} (${typeof recipeUserId})`
+          );
+          console.log(
+            `Current user ID: ${currentUserId} (${typeof currentUserId})`
+          );
+          console.log(`Direct comparison: ${recipeUserId === currentUserId}`);
+          console.log(
+            `String comparison: ${
+              String(recipeUserId) === String(currentUserId)
+            }`
+          );
+          console.log(
+            `Number comparison: ${
+              Number(recipeUserId) === Number(currentUserId)
+            }`
+          );
+
+          // Use multiple comparison strategies to be extra safe
+          const isOwner =
+            user &&
+            (recipeUserId === currentUserId ||
+              String(recipeUserId) === String(currentUserId) ||
+              Number(recipeUserId) === Number(currentUserId));
+
+          if (isOwner) {
+            console.log(
+              `User ${currentUserId} confirmed as owner of recipe ${recipe.id}`
+            );
             console.log(
               "User is the owner of the recipe. User ID:",
               user.id,
