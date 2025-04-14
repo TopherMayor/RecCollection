@@ -431,15 +431,31 @@ export class RecipeService {
       .innerJoin(schema.tags, eq(schema.recipeTags.tagId, schema.tags.id))
       .where(eq(schema.recipeTags.recipeId, id));
 
-    // Return the recipe with all related data
-    return {
+    // Log the final recipe object being returned
+    console.log(
+      `Final recipe object userId: ${
+        recipeData.userId
+      } (${typeof recipeData.userId})`
+    );
+
+    // Create the final recipe object with explicitly included userId
+    const finalRecipe = {
       ...recipeData,
+      userId: recipeData.userId, // Explicitly include userId to ensure it's always present
       user: user[0],
       ingredients,
       instructions,
       categories: recipeCategories,
       tags: recipeTags,
     };
+
+    console.log(
+      `Final recipe object being returned:`,
+      JSON.stringify(finalRecipe).substring(0, 200) + "..."
+    );
+
+    // Return the recipe with all related data
+    return finalRecipe;
   }
 
   // Update a recipe

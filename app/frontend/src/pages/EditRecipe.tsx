@@ -43,9 +43,10 @@ export default function EditRecipe() {
         setIsSubmitting(true);
 
         console.log("Fetching recipe with ID:", id);
-        const recipe = await api.recipes.getById(parseInt(id));
+        const response = await api.recipes.getById(parseInt(id));
 
-        if (recipe) {
+        if (response && response.success && response.recipe) {
+          const recipe = response.recipe;
           console.log("Recipe fetched:", recipe);
           console.log(
             "Recipe user ID (type):",
@@ -60,6 +61,17 @@ export default function EditRecipe() {
             "Strict equality:",
             recipe.userId === user?.id
           );
+
+          // If userId is missing in the recipe, try to get it from other properties
+          if (recipe.userId === undefined) {
+            console.log(
+              "Recipe userId is undefined, trying to extract from user object"
+            );
+            if (recipe.user && recipe.user.id) {
+              console.log(`Found user ID ${recipe.user.id} in recipe.user.id`);
+              recipe.userId = recipe.user.id;
+            }
+          }
 
           // Try different comparison methods
           const stringComparison = String(recipe.userId) === String(user?.id);
