@@ -104,25 +104,42 @@ export default function EditRecipe() {
               sourceUrl: recipe.sourceUrl || undefined,
               sourceType: recipe.sourceType || undefined,
               ingredients: recipe.ingredients?.length
-                ? recipe.ingredients.map((ing: any) => ({
-                    id: ing.id,
-                    name: ing.name,
-                    quantity: ing.quantity?.toString() || "",
-                    unit: ing.unit,
-                    notes: ing.notes,
-                    orderIndex: ing.orderIndex,
-                  }))
+                ? recipe.ingredients.map(
+                    (ing: {
+                      id: number;
+                      name: string;
+                      quantity?: number;
+                      unit?: string;
+                      notes?: string;
+                      orderIndex: number;
+                    }) => ({
+                      id: ing.id,
+                      name: ing.name,
+                      quantity: ing.quantity?.toString() || "",
+                      unit: ing.unit,
+                      notes: ing.notes,
+                      orderIndex: ing.orderIndex,
+                    })
+                  )
                 : [{ name: "", quantity: "", unit: "" }],
               instructions: recipe.instructions?.length
-                ? recipe.instructions.map((inst: any) => ({
-                    id: inst.id,
-                    stepNumber: inst.stepNumber,
-                    description: inst.description,
-                    imageUrl: inst.imageUrl,
-                  }))
+                ? recipe.instructions.map(
+                    (inst: {
+                      id: number;
+                      stepNumber: number;
+                      description: string;
+                      imageUrl?: string;
+                    }) => ({
+                      id: inst.id,
+                      stepNumber: inst.stepNumber,
+                      description: inst.description,
+                      imageUrl: inst.imageUrl,
+                    })
+                  )
                 : [{ stepNumber: 1, description: "" }],
-              categories: recipe.categories?.map((c: any) => c.name) || [],
-              tags: recipe.tags?.map((t: any) => t.name) || [],
+              categories:
+                recipe.categories?.map((c: { name: string }) => c.name) || [],
+              tags: recipe.tags?.map((t: { name: string }) => t.name) || [],
               isPrivate: recipe.isPrivate || false,
             });
           } else {
@@ -138,9 +155,9 @@ export default function EditRecipe() {
             navigate("/app/recipes");
           }, 2000);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching recipe:", err);
-        setError(err.message || "Failed to fetch recipe");
+        setError(err instanceof Error ? err.message : "Failed to fetch recipe");
       } finally {
         setLoading(false);
       }
@@ -531,7 +548,7 @@ export default function EditRecipe() {
         // Log the full error object for debugging
         try {
           console.log("Full error object:", JSON.stringify(err, null, 2));
-        } catch (_) {
+        } catch {
           console.log("Error object could not be stringified", err);
         }
       }
