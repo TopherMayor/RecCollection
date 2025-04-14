@@ -1,10 +1,10 @@
-import React from 'react';
-import { RecipeFormData } from '../../types/Recipe';
-import FormField from '../form/FormField';
-import IngredientList from './IngredientList';
-import InstructionList from './InstructionList';
-import ImageUploader from './ImageUploader';
-import TagsInput from './TagsInput';
+import React from "react";
+import { RecipeFormData, Ingredient, Instruction } from "../../types/Recipe";
+import FormField from "../form/FormField";
+import IngredientList from "./IngredientList";
+import InstructionList from "./InstructionList";
+import ImageUploader from "./ImageUploader";
+import TagsInput from "./TagsInput";
 
 interface RecipeFormProps {
   formData: RecipeFormData;
@@ -12,10 +12,22 @@ interface RecipeFormProps {
   error: string | null;
   success: string | null;
   handleSubmit: (e: React.FormEvent) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleInputChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => void;
   handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleIngredientChange: (index: number, field: string, value: string) => void;
-  handleInstructionChange: (index: number, field: string, value: string) => void;
+  handleIngredientChange: (
+    index: number,
+    field: keyof Ingredient,
+    value: string
+  ) => void;
+  handleInstructionChange: (
+    index: number,
+    field: keyof Instruction,
+    value: string
+  ) => void;
   addIngredient: () => void;
   removeIngredient: (index: number) => void;
   addInstruction: () => void;
@@ -54,30 +66,38 @@ export default function RecipeForm({
   submitButtonText = "Create Recipe",
 }: RecipeFormProps) {
   // Function to update image fields
-  const handleImageChange = (field: 'imageUrl' | 'thumbnailPath' | 'thumbnailUrl', value: string) => {
+  const handleImageChange = (
+    field: "imageUrl" | "thumbnailPath" | "thumbnailUrl",
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
-          {submitButtonText === "Create Recipe" ? "Create New Recipe" : "Edit Recipe"}
+          {submitButtonText === "Create Recipe"
+            ? "Create New Recipe"
+            : "Edit Recipe"}
         </h1>
-        
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             <p className="font-bold">Error</p>
-            {error.includes('\n') ? (
+            {error.includes("\n") ? (
               <div>
                 <p>Please fix the following issues:</p>
                 <ul className="list-disc pl-5 mt-2">
-                  {error.split('\n').map((line, index) => (
-                    line.trim() && <li key={index}>{line}</li>
-                  ))}
+                  {error
+                    .split("\n")
+                    .map(
+                      (line, index) =>
+                        line.trim() && <li key={index}>{line}</li>
+                    )}
                 </ul>
               </div>
             ) : (
@@ -85,21 +105,21 @@ export default function RecipeForm({
             )}
           </div>
         )}
-        
+
         {success && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
             <p className="font-bold">Success</p>
             <p>{success}</p>
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Basic Information
             </h2>
-            
+
             <div className="space-y-4">
               <FormField
                 id="title"
@@ -109,7 +129,7 @@ export default function RecipeForm({
                 placeholder="Enter recipe title"
                 required
               />
-              
+
               <FormField
                 id="description"
                 label="Description"
@@ -119,7 +139,7 @@ export default function RecipeForm({
                 placeholder="Describe your recipe"
                 required
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   id="prepTime"
@@ -130,7 +150,7 @@ export default function RecipeForm({
                   placeholder="30"
                   min={0}
                 />
-                
+
                 <FormField
                   id="cookingTime"
                   label="Cooking Time (minutes)"
@@ -140,7 +160,7 @@ export default function RecipeForm({
                   placeholder="45"
                   min={0}
                 />
-                
+
                 <FormField
                   id="servingSize"
                   label="Serving Size"
@@ -151,7 +171,7 @@ export default function RecipeForm({
                   min={1}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   id="difficultyLevel"
@@ -165,7 +185,7 @@ export default function RecipeForm({
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
                 </FormField>
-                
+
                 <FormField
                   id="sourceUrl"
                   label="Source URL"
@@ -175,7 +195,7 @@ export default function RecipeForm({
                   placeholder="https://example.com/original-recipe"
                 />
               </div>
-              
+
               <FormField
                 id="sourceType"
                 label="Source Type"
@@ -190,12 +210,12 @@ export default function RecipeForm({
                 <option value="website">Website</option>
                 <option value="manual">Manual Entry</option>
               </FormField>
-              
+
               <div className="mt-6 border-t border-gray-200 pt-4">
                 <h3 className="text-lg font-medium text-gray-900">
                   Recipe Image
                 </h3>
-                
+
                 <ImageUploader
                   imageUrl={formData.imageUrl}
                   thumbnailPath={formData.thumbnailPath}
@@ -207,7 +227,7 @@ export default function RecipeForm({
               </div>
             </div>
           </div>
-          
+
           {/* Ingredients */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <IngredientList
@@ -217,7 +237,7 @@ export default function RecipeForm({
               onRemoveIngredient={removeIngredient}
             />
           </div>
-          
+
           {/* Instructions */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <InstructionList
@@ -227,13 +247,13 @@ export default function RecipeForm({
               onRemoveInstruction={removeInstruction}
             />
           </div>
-          
+
           {/* Categories and Tags */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Categories and Tags
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TagsInput
                 title="Categories"
@@ -243,7 +263,7 @@ export default function RecipeForm({
                 placeholder="Add a category"
                 tagClassName="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-indigo-100 text-indigo-800"
               />
-              
+
               <TagsInput
                 title="Tags"
                 items={formData.tags}
@@ -253,7 +273,7 @@ export default function RecipeForm({
                 tagClassName="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
               />
             </div>
-            
+
             <div className="mt-4">
               <label className="inline-flex items-center">
                 <input
@@ -269,7 +289,7 @@ export default function RecipeForm({
               </label>
             </div>
           </div>
-          
+
           {/* Submit Button */}
           <div className="flex justify-end">
             <button
