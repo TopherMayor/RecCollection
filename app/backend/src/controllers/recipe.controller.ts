@@ -40,8 +40,10 @@ export class RecipeController {
   async getRecipe(c: Context) {
     try {
       const id = parseInt(c.req.param("id"));
+      console.log(`Fetching recipe with ID: ${id}`);
 
       if (isNaN(id)) {
+        console.log(`Invalid recipe ID: ${c.req.param("id")}`);
         throw new HTTPException(400, { message: "Invalid recipe ID" });
       }
 
@@ -51,16 +53,42 @@ export class RecipeController {
         const user = c.get("user") as JWTPayload | undefined;
         if (user) {
           userId = user.id;
+          console.log(`User authenticated, ID: ${userId}`);
+        } else {
+          console.log(`User not authenticated (user object is undefined)`);
         }
       } catch (error) {
+        console.log(`Error getting user from context:`, error);
         // User is not authenticated, continue without user ID
       }
 
-      // Get the recipe
-      const recipe = await recipeService.getRecipeById(id, userId);
+      try {
+        // Get the recipe
+        console.log(`Calling recipeService.getRecipeById(${id}, ${userId})`);
+        const recipe = await recipeService.getRecipeById(id, userId);
+        console.log(`Recipe fetched successfully:`, recipe);
 
-      return c.json(recipe);
+        if (!recipe) {
+          console.log(`Recipe with ID ${id} not found`);
+          return c.json(
+            {
+              success: false,
+              error: "Recipe not found",
+            },
+            404
+          );
+        }
+
+        return c.json({
+          success: true,
+          recipe,
+        });
+      } catch (serviceError) {
+        console.error(`Error in recipeService.getRecipeById:`, serviceError);
+        throw serviceError;
+      }
     } catch (error) {
+      console.error(`Error in getRecipe controller:`, error);
       if (error instanceof HTTPException) {
         throw error;
       }
@@ -127,14 +155,22 @@ export class RecipeController {
       // Search recipes
       const result = await recipeService.searchRecipes(params);
 
-      return c.json(result);
+      return c.json({
+        success: true,
+        ...result,
+      });
     } catch (error) {
       if (error instanceof HTTPException) {
         throw error;
       }
-      throw new HTTPException(500, {
-        message: "An error occurred while searching recipes",
-      });
+      console.error("Error searching recipes:", error);
+      return c.json(
+        {
+          success: false,
+          error: "An error occurred while searching recipes",
+        },
+        500
+      );
     }
   }
 
@@ -234,6 +270,103 @@ export class RecipeController {
       }
       throw new HTTPException(500, {
         message: "An error occurred while fetching comments",
+      });
+    }
+  }
+
+  // Get recipes from followed users
+  async getFollowingRecipes(c: Context, params: RecipeSearchParams) {
+    try {
+      const user = c.get("user") as JWTPayload;
+
+      // Get recipes from followed users
+      const result = await recipeService.getFollowingRecipes(user.id, params);
+
+      return c.json({
+        success: true,
+        recipes: result.recipes,
+        pagination: result.pagination,
+      });
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "An error occurred while fetching recipes from followed users",
+      });
+    }
+  }
+
+  // Delete a recipe
+  async deleteRecipe(c: Context) {
+    try {
+      const id = parseInt(c.req.param("id"));
+      const user = c.get("user") as JWTPayload;
+
+      if (isNaN(id)) {
+        throw new HTTPException(400, { message: "Invalid recipe ID" });
+      }
+
+      // Delete the recipe
+      const result = await recipeService.deleteRecipe(id, user.id);
+
+      return c.json({
+        success: true,
+        message: "Recipe deleted successfully",
+      });
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "An error occurred while deleting the recipe",
+      });
+    }
+  }
+
+  // Delete multiple recipes
+  async deleteMultipleRecipes(c: Context, data: { ids: number[] }) {
+    try {
+      const user = c.get("user") as JWTPayload;
+      const { ids } = data;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new HTTPException(400, { message: "Invalid recipe IDs" });
+      }
+
+      // Delete each recipe and collect results
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            await recipeService.deleteRecipe(id, user.id);
+            return { id, success: true };
+          } catch (error) {
+            return {
+              id,
+              success: false,
+              error:
+                error instanceof HTTPException
+                  ? error.message
+                  : "Unknown error",
+            };
+          }
+        })
+      );
+
+      // Count successful deletions
+      const successCount = results.filter((r) => r.success).length;
+
+      return c.json({
+        success: true,
+        message: `${successCount} recipe(s) deleted successfully`,
+        results,
+      });
+    } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "An error occurred while deleting recipes",
       });
     }
   }

@@ -328,6 +328,37 @@ export const api = {
       }
     },
 
+    deleteById: async (id: number) => {
+      try {
+        console.log(`Deleting recipe with ID: ${id}`);
+        const response = await fetch(`${API_BASE_URL}/recipes/${id}`, {
+          method: "DELETE",
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error(`Error deleting recipe with ID ${id}:`, error);
+        throw error;
+      }
+    },
+
+    batchDelete: async (ids: number[]) => {
+      try {
+        console.log(`Batch deleting recipes with IDs: ${ids.join(", ")}`);
+        const response = await fetch(`${API_BASE_URL}/recipes/batch-delete`, {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({ ids }),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error(`Error batch deleting recipes:`, error);
+        throw error;
+      }
+    },
+
     create: async (recipeData: any) => {
       try {
         console.log("Creating new recipe:", recipeData);

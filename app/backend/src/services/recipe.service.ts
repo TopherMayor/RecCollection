@@ -629,25 +629,75 @@ export class RecipeService {
 
   // Delete a recipe
   async deleteRecipe(id: number, userId: number) {
+    console.log(`Attempting to delete recipe ${id} by user ${userId}`);
+
     // Check if recipe exists and user is the owner
     const recipe = await db.query.recipes.findFirst({
       where: eq(schema.recipes.id, id),
     });
 
     if (!recipe) {
+      console.log(`Recipe ${id} not found`);
       throw new HTTPException(404, { message: "Recipe not found" });
     }
 
-    if (recipe.userId !== userId) {
+    console.log(
+      `Recipe ${id} found. Owner ID: ${recipe.userId}, Current user ID: ${userId}`
+    );
+
+    // Compare both as numbers and as strings to handle potential type mismatches
+    if (recipe.userId !== userId && String(recipe.userId) !== String(userId)) {
+      console.log(
+        `Permission denied: Recipe owner ${recipe.userId} does not match current user ${userId}`
+      );
       throw new HTTPException(403, {
         message: "You do not have permission to delete this recipe",
       });
     }
 
-    // Delete the recipe
-    await db.delete(schema.recipes).where(eq(schema.recipes.id, id));
+    console.log(`User ${userId} has permission to delete recipe ${id}`);
 
-    return { success: true };
+    try {
+      // Start a transaction to ensure all related data is deleted
+      await db.transaction(async (tx) => {
+        // Delete recipe tags
+        await tx
+          .delete(schema.recipeTags)
+          .where(eq(schema.recipeTags.recipeId, id));
+
+        // Delete recipe categories
+        await tx
+          .delete(schema.recipeCategories)
+          .where(eq(schema.recipeCategories.recipeId, id));
+
+        // Delete ingredients
+        await tx
+          .delete(schema.ingredients)
+          .where(eq(schema.ingredients.recipeId, id));
+
+        // Delete instructions
+        await tx
+          .delete(schema.instructions)
+          .where(eq(schema.instructions.recipeId, id));
+
+        // Delete comments
+        await tx
+          .delete(schema.comments)
+          .where(eq(schema.comments.recipeId, id));
+
+        // Delete likes
+        await tx.delete(schema.likes).where(eq(schema.likes.recipeId, id));
+
+        // Finally delete the recipe itself
+        await tx.delete(schema.recipes).where(eq(schema.recipes.id, id));
+      });
+
+      console.log(`Recipe ${id} successfully deleted`);
+      return { success: true, message: "Recipe deleted successfully" };
+    } catch (error) {
+      console.error(`Error deleting recipe ${id}:`, error);
+      throw new HTTPException(500, { message: "Failed to delete recipe" });
+    }
   }
 
   // Like a recipe
