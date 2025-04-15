@@ -26,6 +26,17 @@ router.get(
   }
 );
 
+// Get recipes from followed users (requires authentication)
+router.get(
+  "/following",
+  authenticate,
+  validateQuery(searchParamsSchema),
+  (c) => {
+    const params = c.get("validatedQuery");
+    return recipeController.getFollowingRecipes(c, params);
+  }
+);
+
 // Create a new recipe (requires authentication)
 router.post("/", authenticate, validate(recipeSchema), (c) => {
   const data = c.get("validated");
@@ -43,6 +54,13 @@ router.put("/:id", authenticate, validate(recipeUpdateSchema), (c) => {
 
 // Delete a recipe (requires authentication)
 router.delete("/:id", authenticate, (c) => recipeController.deleteRecipe(c));
+
+// Delete multiple recipes (requires authentication)
+router.post("/batch-delete", authenticate, (c) => {
+  return c.req
+    .json()
+    .then((data) => recipeController.deleteMultipleRecipes(c, data));
+});
 
 // Like a recipe (requires authentication)
 router.post("/:id/like", authenticate, (c) => recipeController.likeRecipe(c));

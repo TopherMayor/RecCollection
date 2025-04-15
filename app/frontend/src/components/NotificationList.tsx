@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { formatDistanceToNow } from 'date-fns';
@@ -22,28 +22,28 @@ interface NotificationListProps {
   onNotificationRead?: () => void;
 }
 
-export default function NotificationList({ onNotificationRead }: NotificationListProps) {
+function NotificationList({ onNotificationRead }: NotificationListProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fetch notifications
-  const fetchNotifications = async (pageNum = 1) => {
+  // Fetch notifications - memoized to prevent unnecessary re-renders
+  const fetchNotifications = useCallback(async (pageNum = 1) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await api.get(`/notifications?page=${pageNum}&limit=10`);
-      
+
       if (response.data.success) {
         if (pageNum === 1) {
           setNotifications(response.data.notifications);
         } else {
           setNotifications(prev => [...prev, ...response.data.notifications]);
         }
-        
+
         setHasMore(
           response.data.pagination.page < response.data.pagination.totalPages
         );
@@ -54,20 +54,20 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Mark notification as read
-  const markAsRead = async (id: number) => {
+  // Mark notification as read - memoized to prevent unnecessary re-renders
+  const markAsRead = useCallback(async (id: number) => {
     try {
       await api.patch(`/notifications/${id}/read`);
-      
+
       // Update local state
       setNotifications(prev =>
         prev.map(notification =>
           notification.id === id ? { ...notification, read: true } : notification
         )
       );
-      
+
       // Notify parent component
       if (onNotificationRead) {
         onNotificationRead();
@@ -75,18 +75,18 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
-  };
+  }, [onNotificationRead]);
 
-  // Delete notification
-  const deleteNotification = async (id: number) => {
+  // Delete notification - memoized to prevent unnecessary re-renders
+  const deleteNotification = useCallback(async (id: number) => {
     try {
       await api.delete(`/notifications/${id}`);
-      
+
       // Update local state
       setNotifications(prev =>
         prev.filter(notification => notification.id !== id)
       );
-      
+
       // Notify parent component
       if (onNotificationRead) {
         onNotificationRead();
@@ -94,10 +94,10 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
     } catch (error) {
       console.error('Error deleting notification:', error);
     }
-  };
+  }, [onNotificationRead]);
 
-  // Load more notifications
-  const loadMore = () => {
+  // Load more notifications - memoized to prevent unnecessary re-renders
+  const loadMore = useCallback(() => {
     if (!loading && hasMore) {
       const nextPage = page + 1;
       setPage(nextPage);
@@ -174,7 +174,7 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
   // Fetch notifications on mount
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   return (
     <div className="max-h-96 overflow-y-auto">
@@ -240,7 +240,7 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
               </li>
             ))}
           </ul>
-          
+
           {hasMore && (
             <div className="py-2 text-center">
               <button
@@ -257,3 +257,6 @@ export default function NotificationList({ onNotificationRead }: NotificationLis
     </div>
   );
 }
+
+// Export memoized component to prevent unnecessary re-renders
+export default memo(NotificationList);

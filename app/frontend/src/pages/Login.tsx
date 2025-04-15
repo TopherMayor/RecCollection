@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import PasswordInput from "../components/PasswordInput";
 
@@ -8,10 +8,24 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showDevOptions, setShowDevOptions] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
 
+  // Auto-trigger the appropriate login method based on mode
+  useEffect(() => {
+    if (mode === "direct") {
+      handleDirectLogin();
+    } else if (mode === "emergency") {
+      handleEmergencyLogin();
+    }
+  }, [mode]);
+
+  // Handle normal login form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -23,6 +37,7 @@ export default function Login() {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
 
       await login(email, password);
       navigate("/app/recipes");
@@ -30,6 +45,85 @@ export default function Login() {
       console.error("Login error:", err);
       setError(
         err.message || "Failed to log in. Please check your credentials."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle direct login with environment variables
+  const handleDirectLogin = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      // Use credentials from environment variables
+      const devEmail =
+        import.meta.env.VITE_DEV_LOGIN_EMAIL || "test@example.com";
+      const devPassword =
+        import.meta.env.VITE_DEV_LOGIN_PASSWORD || "password123";
+
+      await login(devEmail, devPassword);
+      setSuccess("Login successful!");
+
+      // Redirect after a short delay
+      setTimeout(() => {
+        navigate("/app/recipes");
+      }, 1000);
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle emergency login (direct API call)
+  const handleEmergencyLogin = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess("Attempting emergency login...");
+
+      // Clear any existing auth data
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("redirectCount");
+
+      // Make a direct fetch request to the login endpoint
+      const response = await fetch("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "john@example.com",
+          password: "password123",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.token && data.user) {
+        setSuccess("Emergency login successful! Setting up session...");
+
+        // Store the token and user data
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Wait a moment to ensure localStorage is updated
+        setTimeout(() => {
+          // Use window.location for a hard redirect
+          window.location.href = "/app/recipes";
+        }, 1000);
+      } else {
+        setError(`Login failed: ${data.message || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     } finally {
       setLoading(false);
@@ -75,6 +169,31 @@ export default function Login() {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-green-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-green-700">{success}</p>
                 </div>
               </div>
             </div>
@@ -148,6 +267,49 @@ export default function Login() {
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
+
+            {/* Developer options toggle */}
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setShowDevOptions(!showDevOptions)}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                {showDevOptions
+                  ? "Hide developer options"
+                  : "Show developer options"}
+              </button>
+            </div>
+
+            {/* Developer login options */}
+            {showDevOptions && (
+              <div className="mt-4 space-y-4 border-t pt-4">
+                <h3 className="text-sm font-medium text-gray-700">
+                  Developer Options
+                </h3>
+                <div className="flex space-x-4">
+                  <button
+                    type="button"
+                    onClick={handleDirectLogin}
+                    disabled={loading}
+                    className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Quick Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleEmergencyLogin}
+                    disabled={loading}
+                    className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Emergency Login
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500">
+                  These options are for development and testing purposes only.
+                </p>
+              </div>
+            )}
           </form>
         </div>
       </div>

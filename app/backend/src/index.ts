@@ -22,14 +22,60 @@ const app = new Hono();
 
 // Middleware
 app.use("*", logger());
+// Configure CORS with more secure settings
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"], // Frontend URLs
+    origin: process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",")
+      : ["http://localhost:5173", "http://localhost:5174"], // Frontend URLs
     credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "X-Requested-With",
+    ],
+    exposeHeaders: [
+      "Content-Length",
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "X-RateLimit-Reset",
+    ],
+    maxAge: 86400, // 24 hours in seconds
   })
 );
-app.use("*", secureHeaders());
+// Add security headers
+app.use(
+  "*",
+  secureHeaders({
+    contentSecurityPolicy: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://picsum.photos",
+        "https://ui-avatars.com",
+        "https://source.unsplash.com",
+      ],
+      connectSrc: [
+        "'self'",
+        "https://api.openrouter.ai",
+        "https://generativelanguage.googleapis.com",
+      ],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+    xssProtection: "1; mode=block",
+    noSniff: true,
+    frameGuard: { action: "deny" },
+  })
+);
 app.use("*", errorHandler);
 
 // Serve static files from uploads directory

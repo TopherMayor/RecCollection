@@ -29,6 +29,9 @@ router.post("/login", validate(loginSchema), (c) => {
 // Get current user (requires authentication)
 router.get("/me", authenticate, (c) => authController.me(c));
 
+// Get user profile by username (public)
+router.get("/profile/:username", (c) => authController.getUserByUsername(c));
+
 // Update user profile (requires authentication)
 router.put("/profile", authenticate, validate(updateProfileSchema), (c) => {
   const data = c.get("validated");

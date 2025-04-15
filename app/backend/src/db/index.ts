@@ -1,9 +1,11 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
 
 // Get the database connection string from environment variables
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/reccollection';
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgres://postgres:postgres@localhost:5433/reccollection";
 
 // Create a postgres client
 const client = postgres(connectionString);

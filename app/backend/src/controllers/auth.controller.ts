@@ -72,6 +72,32 @@ export class AuthController {
     }
   }
 
+  // Get user by username
+  async getUserByUsername(c: Context) {
+    try {
+      const username = c.req.param("username");
+      console.log(`Fetching profile for username: ${username}`);
+
+      // Get user details
+      try {
+        const userDetails = await userService.getUserByUsername(username);
+        console.log("User details fetched successfully:", userDetails);
+        return c.json(userDetails);
+      } catch (serviceError) {
+        console.error("Error in userService.getUserByUsername:", serviceError);
+        throw serviceError;
+      }
+    } catch (error) {
+      console.error("Error in getUserByUsername controller:", error);
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "An error occurred while fetching user profile",
+      });
+    }
+  }
+
   // Update user profile
   async updateProfile(
     c: Context,

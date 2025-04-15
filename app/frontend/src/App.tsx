@@ -16,18 +16,13 @@ import PublicLayout from "./components/layout/PublicLayout";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import TestLogin from "./pages/TestLogin";
-
 // Authenticated pages
 import Home from "./pages/Home";
 import RecipeDetail from "./pages/RecipeDetail";
 import CreateRecipe from "./pages/CreateRecipe";
 import EditRecipe from "./pages/EditRecipe";
 import ImportRecipe from "./pages/ImportRecipe";
-import TestCreateRecipe from "./pages/TestCreateRecipe";
-import EnvTest from "./pages/EnvTest";
-import DirectLogin from "./pages/DirectLogin";
-import EmergencyLogin from "./pages/EmergencyLogin";
+
 import SimpleRecipes from "./pages/SimpleRecipes";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResults from "./pages/SearchResults";
@@ -45,10 +40,15 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="test-login" element={<TestLogin />} />
-            <Route path="env-test" element={<EnvTest />} />
-            <Route path="direct-login" element={<DirectLogin />} />
-            <Route path="emergency-login" element={<EmergencyLogin />} />
+
+            <Route
+              path="direct-login"
+              element={<Navigate to="/login?mode=direct" replace />}
+            />
+            <Route
+              path="emergency-login"
+              element={<Navigate to="/login?mode=emergency" replace />}
+            />
             <Route path="shared/:token" element={<RecipeDetail />} />
             <Route path="import" element={<ImportRecipe />} />
           </Route>
@@ -62,7 +62,7 @@ function App() {
             <Route path="create" element={<CreateRecipe />} />
             <Route path="import" element={<ImportRecipe />} />
             <Route path="edit/:id" element={<EditRecipe />} />
-            <Route path="test-create" element={<TestCreateRecipe />} />
+
             <Route path="profile/:username" element={<ProfilePage />} />
             <Route path="search" element={<SearchResults />} />
           </Route>

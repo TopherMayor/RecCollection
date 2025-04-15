@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import SearchBar from "./SearchBar";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -69,6 +70,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            {isAuthenticated && <NotificationBell />}
             {isAuthenticated ? (
               <>
                 <Link
