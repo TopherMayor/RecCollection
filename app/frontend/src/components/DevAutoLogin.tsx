@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -102,7 +101,7 @@ export default function DevAutoLogin() {
     if (shouldAutoLogin) {
       performAutoLogin();
     }
-  }, [isAuthenticated, isLoading, isAutoLoginAttempted]);
+  }, [isAuthenticated, isLoading, isAutoLoginAttempted, login, navigate]);
 
   // This component doesn't render anything
   return null;

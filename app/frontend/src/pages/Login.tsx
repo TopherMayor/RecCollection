@@ -23,7 +23,7 @@ export default function Login() {
     } else if (mode === "emergency") {
       handleEmergencyLogin();
     }
-  }, [mode]);
+  }, [mode, handleDirectLogin, handleEmergencyLogin]);
 
   // Handle normal login form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ export default function Login() {
 
       await login(email, password);
       navigate("/app/recipes");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error:", err);
       setError(
         err.message || "Failed to log in. Please check your credentials."
@@ -71,7 +71,7 @@ export default function Login() {
       setTimeout(() => {
         navigate("/app/recipes");
       }, 1000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Login failed");
     } finally {

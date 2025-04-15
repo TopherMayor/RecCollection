@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import FollowButton from "../components/FollowButton";
 import { RecipeCard } from "../components/recipe";
@@ -135,10 +134,7 @@ export default function SearchResults() {
 
   // Render user card
   const renderUserCard = (user: User) => (
-    <Card
-      key={user.id}
-      className="overflow-hidden"
-    >
+    <Card key={user.id} className="overflow-hidden">
       <CardBody className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center">
         <div className="flex-shrink-0">
           {user.avatarUrl ? (
@@ -158,10 +154,17 @@ export default function SearchResults() {
           )}
         </div>
         <div className="ml-0 sm:ml-4 mt-2 sm:mt-0">
-          <Heading level="h3" size="lg" weight="medium" className="text-gray-900">
+          <Heading
+            level="h3"
+            size="lg"
+            weight="medium"
+            className="text-gray-900"
+          >
             {user.displayName || user.username}
           </Heading>
-          <Text size="sm" className="text-gray-500">@{user.username}</Text>
+          <Text size="sm" className="text-gray-500">
+            @{user.username}
+          </Text>
           {user.bio && (
             <Text size="sm" className="mt-1 text-gray-600 line-clamp-2">
               {user.bio}
@@ -196,7 +199,6 @@ export default function SearchResults() {
       username={recipe.user?.displayName || recipe.user?.username}
       userId={recipe.user?.id}
     />
-  )
   );
 
   // Render pagination
@@ -297,9 +299,13 @@ export default function SearchResults() {
 
   return (
     <ResponsiveContainer width="xl" padding={true} className="py-4 sm:py-8">
-      <Heading level="h1" size="3xl" weight="bold" className="mb-2">Search Results</Heading>
+      <Heading level="h1" size="3xl" weight="bold" className="mb-2">
+        Search Results
+      </Heading>
       {query ? (
-        <Text className="text-gray-600 mb-4 sm:mb-6">Showing results for "{query}"</Text>
+        <Text className="text-gray-600 mb-4 sm:mb-6">
+          Showing results for "{query}"
+        </Text>
       ) : (
         <Text className="text-gray-600 mb-4 sm:mb-6">
           Enter a search term to find recipes and users
@@ -400,7 +406,14 @@ export default function SearchResults() {
             results.users?.items.length > 0 && (
               <div>
                 {activeTab === "all" && (
-                  <Heading level="h2" size="2xl" weight="bold" className="mb-3 sm:mb-4">Users</Heading>
+                  <Heading
+                    level="h2"
+                    size="2xl"
+                    weight="bold"
+                    className="mb-3 sm:mb-4"
+                  >
+                    Users
+                  </Heading>
                 )}
                 <div className="space-y-4">
                   {results.users.items.map(renderUserCard)}
@@ -415,12 +428,16 @@ export default function SearchResults() {
             results.recipes?.items.length > 0 && (
               <div>
                 {activeTab === "all" && (
-                  <Heading level="h2" size="2xl" weight="bold" className="mb-3 sm:mb-4">Recipes</Heading>
+                  <Heading
+                    level="h2"
+                    size="2xl"
+                    weight="bold"
+                    className="mb-3 sm:mb-4"
+                  >
+                    Recipes
+                  </Heading>
                 )}
-                <ResponsiveGrid
-                  columns={{ default: 1, sm: 2, lg: 3 }}
-                  gap="md"
-                >
+                <ResponsiveGrid columns={{ default: 1, sm: 2, lg: 3 }} gap="md">
                   {results.recipes.items.map(renderRecipeCard)}
                 </ResponsiveGrid>
                 {activeTab !== "all" &&
@@ -463,6 +480,6 @@ export default function SearchResults() {
             )}
         </div>
       )}
-    </div>
+    </ResponsiveContainer>
   );
 }

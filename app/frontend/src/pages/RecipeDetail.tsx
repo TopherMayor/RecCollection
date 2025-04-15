@@ -4,7 +4,7 @@ import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import ShareRecipeModal from "../components/ShareRecipeModal";
 import ResponsiveContainer from "../components/layout/ResponsiveContainer";
-import { Typography, Heading, Text } from "../components/ui/Typography";
+import { Heading, Text } from "../components/ui/Typography";
 import {
   ResponsiveButton,
   ResponsiveLinkButton,
@@ -61,7 +61,7 @@ export default function RecipeDetail() {
   const navigate = useNavigate();
   const [isOwner, setIsOwner] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [recipeLoaded, setRecipeLoaded] = useState<boolean>(false);
+  const [, setRecipeLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

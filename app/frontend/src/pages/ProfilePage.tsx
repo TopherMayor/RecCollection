@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "../api";
 import FollowButton from "../components/FollowButton";
 
 interface UserProfile {

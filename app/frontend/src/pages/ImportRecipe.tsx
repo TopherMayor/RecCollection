@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "../api";
 
 // Define the recipe data structure
 interface RecipeData {
@@ -94,11 +93,11 @@ export default function ImportRecipe() {
   // Validate YouTube URL format
   const validateYouTubeUrl = (url: string): boolean => {
     const youtubeRegex = [
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i,
-      /(?:youtube\.com\/shorts\/)([^"&?\/ ]{11})/i,
-      /youtube\.com\/watch\?v=([^"&?\/ ]{11})/i,
-      /youtube\.com\/embed\/([^"&?\/ ]{11})/i,
-      /youtu\.be\/([^"&?\/ ]{11})/i,
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/i,
+      /(?:youtube\.com\/shorts\/)([^"&?/ ]{11})/i,
+      /youtube\.com\/watch\?v=([^"&?/ ]{11})/i,
+      /youtube\.com\/embed\/([^"&?/ ]{11})/i,
+      /youtu\.be\/([^"&?/ ]{11})/i,
     ];
 
     return youtubeRegex.some((regex) => regex.test(url));
@@ -210,7 +209,7 @@ export default function ImportRecipe() {
       } else {
         throw new Error("Invalid response format");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error parsing recipe:", error);
 
       // Provide more helpful error messages based on the error
@@ -281,7 +280,7 @@ export default function ImportRecipe() {
       } else {
         throw new Error("Invalid response format");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error importing recipe:", error);
       setError(error.message || "Failed to import recipe");
     } finally {
@@ -290,7 +289,7 @@ export default function ImportRecipe() {
   };
 
   // Handle recipe field changes
-  const handleRecipeChange = (field: string, value: any) => {
+  const handleRecipeChange = (field: string, value: unknown) => {
     if (!editedRecipe) return;
 
     setEditedRecipe({
@@ -300,7 +299,11 @@ export default function ImportRecipe() {
   };
 
   // Handle ingredient changes
-  const handleIngredientChange = (index: number, field: string, value: any) => {
+  const handleIngredientChange = (
+    index: number,
+    field: string,
+    value: unknown
+  ) => {
     if (!editedRecipe) return;
 
     const updatedIngredients = [...editedRecipe.ingredients];
@@ -319,7 +322,7 @@ export default function ImportRecipe() {
   const handleInstructionChange = (
     index: number,
     field: string,
-    value: any
+    value: unknown
   ) => {
     if (!editedRecipe) return;
 
