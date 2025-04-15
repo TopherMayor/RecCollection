@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import DevAutoLogin from "./components/DevAutoLogin";
+import DeepLinkHandler from "./components/DeepLinkHandler";
 
 // Layouts
 import AuthenticatedLayout from "./components/layout/AuthenticatedLayout";
@@ -37,6 +38,7 @@ function App() {
       <AuthProvider>
         {/* Auto-login component for development - only active when env var is set */}
         {import.meta.env.DEV && <DevAutoLogin />}
+        <DeepLinkHandler />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<PublicLayout />}>
@@ -47,6 +49,8 @@ function App() {
             <Route path="env-test" element={<EnvTest />} />
             <Route path="direct-login" element={<DirectLogin />} />
             <Route path="emergency-login" element={<EmergencyLogin />} />
+            <Route path="shared/:token" element={<RecipeDetail />} />
+            <Route path="import" element={<ImportRecipe />} />
           </Route>
 
           {/* Authenticated routes */}

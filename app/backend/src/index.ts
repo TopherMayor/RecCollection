@@ -12,6 +12,8 @@ import { importRoutes } from "./routes/import";
 import { socialImportRoutes } from "./routes/social-import";
 import { searchRoutes } from "./routes/search";
 import { followRoutes } from "./routes/follow";
+import { notificationRoutes } from "./routes/notifications";
+import { sharingRoutes } from "./routes/sharing";
 import { AIParserController } from "./controllers/ai-parser.controller";
 import "dotenv/config";
 
@@ -41,6 +43,8 @@ app.route("/api/import", importRoutes);
 app.route("/api/social-import", socialImportRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/follow", followRoutes);
+app.route("/api/notifications", notificationRoutes);
+app.route("/api/sharing", sharingRoutes);
 
 // Health check
 app.get("/", (c) =>
