@@ -1,18 +1,24 @@
 import { db } from "../db";
-import { notifications, notificationPreferences, userContacts, users } from "../db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import {
+  notifications,
+  notificationPreferences,
+  userContacts,
+  users,
+} from "../db/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { EmailService } from "./email.service";
 import { SMSService } from "./sms.service";
 
 // Define notification types
-export type NotificationType = 
-  | "follow" 
-  | "like" 
-  | "comment" 
-  | "share" 
-  | "mention" 
-  | "recipe_import";
+export type NotificationType =
+  | "follow"
+  | "like"
+  | "comment"
+  | "share"
+  | "mention"
+  | "recipe_import"
+  | "new_post";
 
 // Define notification data structure
 export interface NotificationData {
@@ -33,6 +39,7 @@ export interface NotificationPreferences {
   likeNotifications: boolean;
   commentNotifications: boolean;
   shareNotifications: boolean;
+  newPostNotifications: boolean;
 }
 
 // Define pagination parameters
@@ -64,13 +71,20 @@ export class NotificationService {
       }
 
       // Check user's notification preferences
-      const preferences = await this.getUserNotificationPreferences(data.userId);
-      
+      const preferences = await this.getUserNotificationPreferences(
+        data.userId
+      );
+
       // Check if this type of notification is enabled
-      const notificationTypeEnabled = this.isNotificationTypeEnabled(preferences, data.type);
-      
+      const notificationTypeEnabled = this.isNotificationTypeEnabled(
+        preferences,
+        data.type
+      );
+
       if (!notificationTypeEnabled) {
-        console.log(`Notification type ${data.type} is disabled for user ${data.userId}`);
+        console.log(
+          `Notification type ${data.type} is disabled for user ${data.userId}`
+        );
         return null;
       }
 
@@ -116,7 +130,9 @@ export class NotificationService {
   }
 
   // Get user's notification preferences
-  async getUserNotificationPreferences(userId: number): Promise<NotificationPreferences> {
+  async getUserNotificationPreferences(
+    userId: number
+  ): Promise<NotificationPreferences> {
     try {
       // Check if user exists
       const user = await db.query.users.findFirst({
@@ -128,7 +144,7 @@ export class NotificationService {
       }
 
       // Get user's notification preferences
-      let preferences = await db.query.notificationPreferences.findFirst({
+      const preferences = await db.query.notificationPreferences.findFirst({
         where: eq(notificationPreferences.userId, userId),
       });
 
@@ -145,11 +161,21 @@ export class NotificationService {
             likeNotifications: true,
             commentNotifications: true,
             shareNotifications: true,
+            newPostNotifications: true,
             updatedAt: new Date(),
           })
           .returning();
 
-        preferences = newPreferences;
+        return {
+          emailNotifications: newPreferences.emailNotifications,
+          pushNotifications: newPreferences.pushNotifications,
+          smsNotifications: newPreferences.smsNotifications,
+          followNotifications: newPreferences.followNotifications,
+          likeNotifications: newPreferences.likeNotifications,
+          commentNotifications: newPreferences.commentNotifications,
+          shareNotifications: newPreferences.shareNotifications,
+          newPostNotifications: newPreferences.newPostNotifications,
+        };
       }
 
       return {
@@ -160,6 +186,7 @@ export class NotificationService {
         likeNotifications: preferences.likeNotifications,
         commentNotifications: preferences.commentNotifications,
         shareNotifications: preferences.shareNotifications,
+        newPostNotifications: preferences.newPostNotifications || true, // Default to true if not set
       };
     } catch (error) {
       console.error("Error getting notification preferences:", error);
@@ -188,19 +215,29 @@ export class NotificationService {
       }
 
       // Check if preferences exist
-      const existingPreferences = await db.query.notificationPreferences.findFirst({
-        where: eq(notificationPreferences.userId, userId),
-      });
+      const existingPreferences =
+        await db.query.notificationPreferences.findFirst({
+          where: eq(notificationPreferences.userId, userId),
+        });
 
       if (!existingPreferences) {
-        // Create new preferences
+        // Create new preferences with defaults for any missing fields
+        const newPreferencesData = {
+          userId,
+          emailNotifications: preferences.emailNotifications ?? true,
+          pushNotifications: preferences.pushNotifications ?? true,
+          smsNotifications: preferences.smsNotifications ?? false,
+          followNotifications: preferences.followNotifications ?? true,
+          likeNotifications: preferences.likeNotifications ?? true,
+          commentNotifications: preferences.commentNotifications ?? true,
+          shareNotifications: preferences.shareNotifications ?? true,
+          newPostNotifications: preferences.newPostNotifications ?? true,
+          updatedAt: new Date(),
+        };
+
         const [newPreferences] = await db
           .insert(notificationPreferences)
-          .values({
-            userId,
-            ...preferences,
-            updatedAt: new Date(),
-          })
+          .values(newPreferencesData)
           .returning();
 
         return {
@@ -211,16 +248,43 @@ export class NotificationService {
           likeNotifications: newPreferences.likeNotifications,
           commentNotifications: newPreferences.commentNotifications,
           shareNotifications: newPreferences.shareNotifications,
+          newPostNotifications: newPreferences.newPostNotifications,
         };
       }
 
       // Update existing preferences
+      // Only include fields that were provided in the update
+      const updateData: any = { updatedAt: new Date() };
+
+      if (preferences.emailNotifications !== undefined) {
+        updateData.emailNotifications = preferences.emailNotifications;
+      }
+      if (preferences.pushNotifications !== undefined) {
+        updateData.pushNotifications = preferences.pushNotifications;
+      }
+      if (preferences.smsNotifications !== undefined) {
+        updateData.smsNotifications = preferences.smsNotifications;
+      }
+      if (preferences.followNotifications !== undefined) {
+        updateData.followNotifications = preferences.followNotifications;
+      }
+      if (preferences.likeNotifications !== undefined) {
+        updateData.likeNotifications = preferences.likeNotifications;
+      }
+      if (preferences.commentNotifications !== undefined) {
+        updateData.commentNotifications = preferences.commentNotifications;
+      }
+      if (preferences.shareNotifications !== undefined) {
+        updateData.shareNotifications = preferences.shareNotifications;
+      }
+      if (preferences.newPostNotifications !== undefined) {
+        updateData.newPostNotifications = preferences.newPostNotifications;
+      }
+
+      // Execute the update
       const [updatedPreferences] = await db
         .update(notificationPreferences)
-        .set({
-          ...preferences,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(notificationPreferences.userId, userId))
         .returning();
 
@@ -232,6 +296,7 @@ export class NotificationService {
         likeNotifications: updatedPreferences.likeNotifications,
         commentNotifications: updatedPreferences.commentNotifications,
         shareNotifications: updatedPreferences.shareNotifications,
+        newPostNotifications: updatedPreferences.newPostNotifications,
       };
     } catch (error) {
       console.error("Error updating notification preferences:", error);
@@ -271,20 +336,20 @@ export class NotificationService {
       const offset = (page - 1) * limit;
 
       // Get total count
-      const totalCount = await db
-        .select({ count: db.fn.count() })
+      const totalResult = await db
+        .select({ count: sql`count(*)` })
         .from(notifications)
         .where(eq(notifications.userId, userId));
 
-      const total = Number(totalCount[0].count);
+      const total = Number(totalResult[0]?.count) || 0;
       const totalPages = Math.ceil(total / limit);
 
       // Get notifications
-      const userNotifications = await db.query.notifications.findMany({
+      const notificationsResult = await db.query.notifications.findMany({
         where: eq(notifications.userId, userId),
         orderBy: [desc(notifications.createdAt)],
-        limit,
-        offset,
+        limit: limit,
+        offset: offset,
         with: {
           sender: {
             columns: {
@@ -297,8 +362,35 @@ export class NotificationService {
         },
       });
 
+      // Format the notifications
+      const formattedNotifications = notificationsResult.map((notification) => {
+        const result: any = {
+          id: notification.id,
+          userId: notification.userId,
+          type: notification.type,
+          senderId: notification.senderId,
+          recipeId: notification.recipeId,
+          message: notification.message,
+          read: notification.read,
+          data: notification.data,
+          createdAt: notification.createdAt,
+        };
+
+        // Add sender information if available
+        if (notification.sender) {
+          result.sender = {
+            id: notification.sender.id,
+            username: notification.sender.username,
+            displayName: notification.sender.displayName,
+            avatarUrl: notification.sender.avatarUrl,
+          };
+        }
+
+        return result;
+      });
+
       return {
-        notifications: userNotifications,
+        notifications: formattedNotifications,
         pagination: {
           total,
           page,
@@ -318,7 +410,10 @@ export class NotificationService {
   }
 
   // Mark notification as read
-  async markNotificationAsRead(userId: number, notificationId: number): Promise<any> {
+  async markNotificationAsRead(
+    userId: number,
+    notificationId: number
+  ): Promise<any> {
     try {
       // Check if notification exists and belongs to the user
       const notification = await db.query.notifications.findFirst({
@@ -344,7 +439,17 @@ export class NotificationService {
         )
         .returning();
 
-      return updatedNotification;
+      return {
+        id: updatedNotification.id,
+        userId: updatedNotification.userId,
+        type: updatedNotification.type,
+        senderId: updatedNotification.senderId,
+        recipeId: updatedNotification.recipeId,
+        message: updatedNotification.message,
+        read: updatedNotification.read,
+        data: updatedNotification.data,
+        createdAt: updatedNotification.createdAt,
+      };
     } catch (error) {
       console.error("Error marking notification as read:", error);
       if (error instanceof HTTPException) {
@@ -373,10 +478,7 @@ export class NotificationService {
         .update(notifications)
         .set({ read: true })
         .where(
-          and(
-            eq(notifications.userId, userId),
-            eq(notifications.read, false)
-          )
+          and(eq(notifications.userId, userId), eq(notifications.read, false))
         );
 
       return result.rowCount || 0;
@@ -392,7 +494,10 @@ export class NotificationService {
   }
 
   // Delete notification
-  async deleteNotification(userId: number, notificationId: number): Promise<any> {
+  async deleteNotification(
+    userId: number,
+    notificationId: number
+  ): Promise<any> {
     try {
       // Check if notification exists and belongs to the user
       const notification = await db.query.notifications.findFirst({
@@ -442,16 +547,13 @@ export class NotificationService {
 
       // Get count
       const result = await db
-        .select({ count: db.fn.count() })
+        .select({ count: sql`count(*)` })
         .from(notifications)
         .where(
-          and(
-            eq(notifications.userId, userId),
-            eq(notifications.read, false)
-          )
+          and(eq(notifications.userId, userId), eq(notifications.read, false))
         );
 
-      return Number(result[0].count);
+      return Number(result[0]?.count) || 0;
     } catch (error) {
       console.error("Error getting unread notification count:", error);
       if (error instanceof HTTPException) {
@@ -481,6 +583,8 @@ export class NotificationService {
         return preferences.commentNotifications; // Use comment preferences for mentions
       case "recipe_import":
         return true; // Always notify for recipe imports
+      case "new_post":
+        return preferences.newPostNotifications;
       default:
         return true;
     }
@@ -545,6 +649,9 @@ export class NotificationService {
         case "recipe_import":
           subject = "Your recipe was successfully imported to RecCollection";
           break;
+        case "new_post":
+          subject = `${senderName} posted a new recipe on RecCollection`;
+          break;
       }
 
       // Send the email
@@ -571,7 +678,11 @@ export class NotificationService {
         where: eq(userContacts.userId, userId),
       });
 
-      if (!userContact || !userContact.phoneNumber || !userContact.phoneVerified) {
+      if (
+        !userContact ||
+        !userContact.phoneNumber ||
+        !userContact.phoneVerified
+      ) {
         // Skip if no verified phone number
         return;
       }
@@ -617,6 +728,9 @@ export class NotificationService {
           break;
         case "recipe_import":
           content = `RecCollection: Recipe import complete. ${content}`;
+          break;
+        case "new_post":
+          content = `RecCollection: ${senderName} posted a new recipe. ${content}`;
           break;
       }
 

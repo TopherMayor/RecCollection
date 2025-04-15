@@ -1,5 +1,4 @@
 import { Twilio } from "twilio";
-import { HTTPException } from "hono/http-exception";
 
 // SMS data interface
 export interface SMSData {
@@ -10,8 +9,8 @@ export interface SMSData {
 
 // SMS service
 export class SMSService {
-  private client: Twilio;
-  private defaultFrom: string;
+  private client?: Twilio;
+  private defaultFrom: string = "";
 
   constructor() {
     // Get Twilio configuration from environment variables
@@ -33,7 +32,8 @@ export class SMSService {
     try {
       // Validate SMS data
       if (!data.to || !data.message) {
-        throw new HTTPException(400, { message: "Invalid SMS data" });
+        console.warn("Invalid SMS data:", data);
+        return false;
       }
 
       // Format phone number (ensure it has country code)
@@ -42,7 +42,10 @@ export class SMSService {
       // Check if Twilio client is initialized
       if (!this.client || !this.defaultFrom) {
         // In development or test, don't throw an error
-        if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+        if (
+          process.env.NODE_ENV === "development" ||
+          process.env.NODE_ENV === "test"
+        ) {
           console.log("SMS would have been sent in production:", {
             to: formattedNumber,
             body: data.message,
@@ -50,8 +53,9 @@ export class SMSService {
           });
           return true;
         }
-        
-        throw new Error("SMS service not configured");
+
+        console.error("SMS service not configured");
+        return false;
       }
 
       // Send SMS
@@ -65,17 +69,19 @@ export class SMSService {
       return true;
     } catch (error) {
       console.error("Error sending SMS:", error);
-      
+
       // In development or test, don't throw an error
-      if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+      if (
+        process.env.NODE_ENV === "development" ||
+        process.env.NODE_ENV === "test"
+      ) {
         console.log("SMS would have been sent in production:", data);
         return true;
       }
-      
-      // In production, throw an error
-      throw new HTTPException(500, {
-        message: "Failed to send SMS",
-      });
+
+      // In production, log the error but don't throw
+      console.error("Failed to send SMS in production:", error);
+      return false;
     }
   }
 
@@ -101,7 +107,7 @@ export class SMSService {
   private formatPhoneNumber(phoneNumber: string): string {
     // Remove any non-digit characters
     const digitsOnly = phoneNumber.replace(/\D/g, "");
-    
+
     // If the number doesn't start with +, add +1 (US) as default
     if (!phoneNumber.startsWith("+")) {
       // If it's a 10-digit number, assume US and add +1
@@ -113,7 +119,7 @@ export class SMSService {
         return `+${digitsOnly}`;
       }
     }
-    
+
     // Return the original number if it already has a country code
     return phoneNumber;
   }

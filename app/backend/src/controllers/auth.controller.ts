@@ -35,8 +35,23 @@ export class AuthController {
   // Login a user
   async login(c: Context, data: LoginInput) {
     try {
+      console.log("Login attempt for email:", data.email);
+
+      // Check if JWT_SECRET is set
+      if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim() === "") {
+        console.error("JWT_SECRET is not set or is empty");
+        return c.json(
+          {
+            success: false,
+            message: "Server configuration error",
+          },
+          500
+        );
+      }
+
       // Login the user
       const result = await userService.login(data);
+      console.log("Login successful for user:", result.user.username);
 
       return c.json({
         success: true,
@@ -44,12 +59,29 @@ export class AuthController {
         token: result.token,
       });
     } catch (error) {
+      console.error("Login error:", error);
+
       if (error instanceof HTTPException) {
-        throw error;
+        // Ensure we return a proper JSON response
+        return c.json(
+          {
+            success: false,
+            message: error.message || "Authentication failed",
+            status: error.status,
+          },
+          error.status
+        );
       }
-      throw new HTTPException(500, {
-        message: "An error occurred during login",
-      });
+
+      // For any other errors, return a generic error message
+      return c.json(
+        {
+          success: false,
+          message: "An error occurred during login",
+          status: 500,
+        },
+        500
+      );
     }
   }
 

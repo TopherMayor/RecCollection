@@ -41,7 +41,13 @@ export async function authenticate(c: Context, next: Next) {
     // Verify the token with proper error handling
     let decoded;
     try {
-      decoded = verify(token, process.env.JWT_SECRET || "") as JWTPayload;
+      // Check if JWT_SECRET is set
+      if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim() === "") {
+        console.error("JWT_SECRET is not set or is empty");
+        throw new HTTPException(500, { message: "Server configuration error" });
+      }
+
+      decoded = verify(token, process.env.JWT_SECRET) as JWTPayload;
     } catch (jwtError: any) {
       console.error("JWT verification error:", jwtError.message);
       throw new HTTPException(401, { message: "Invalid or expired token" });

@@ -652,4 +652,118 @@ export const api = {
       }
     },
   },
+
+  // Notification endpoints
+  notifications: {
+    getAll: async (page = 1, limit = 10) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/notifications?page=${page}&limit=${limit}`,
+          {
+            headers: getHeaders(),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        throw error;
+      }
+    },
+
+    getUnreadCount: async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/notifications/unread-count`,
+          {
+            headers: getHeaders(),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error fetching unread notification count:", error);
+        throw error;
+      }
+    },
+
+    markAsRead: async (id: number) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/notifications/${id}/read`,
+          {
+            method: "PATCH",
+            headers: getHeaders(),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error(`Error marking notification ${id} as read:`, error);
+        throw error;
+      }
+    },
+
+    markAllAsRead: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
+          method: "PATCH",
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error marking all notifications as read:", error);
+        throw error;
+      }
+    },
+
+    delete: async (id: number) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/notifications/${id}`, {
+          method: "DELETE",
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error(`Error deleting notification ${id}:`, error);
+        throw error;
+      }
+    },
+
+    getPreferences: async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/notifications/preferences`,
+          {
+            headers: getHeaders(),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error fetching notification preferences:", error);
+        throw error;
+      }
+    },
+
+    updatePreferences: async (preferences: any) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/notifications/preferences`,
+          {
+            method: "PATCH",
+            headers: getHeaders(),
+            body: JSON.stringify(preferences),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error updating notification preferences:", error);
+        throw error;
+      }
+    },
+  },
 };

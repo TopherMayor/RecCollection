@@ -95,11 +95,13 @@ export default function AuthenticatedLayout() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <Outlet />
+        <div className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
       </main>
-      <footer className="bg-gray-800 text-white py-6">
+      <footer className="bg-gray-800 text-white py-4 sm:py-6">
         <div className="container mx-auto px-4">
-          <p className="text-center">
+          <p className="text-center text-sm sm:text-base">
             © {new Date().getFullYear()} RecCollection. All rights reserved.
           </p>
         </div>

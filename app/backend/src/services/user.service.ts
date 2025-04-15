@@ -354,6 +354,29 @@ export class UserService {
       followingId,
     });
 
+    // Create a notification for the user being followed
+    try {
+      const { NotificationService } = await import("./notification.service");
+      const notificationService = new NotificationService();
+
+      await notificationService.createNotification({
+        userId: followingId, // The user being followed receives the notification
+        type: "follow",
+        senderId: followerId, // The follower is the sender
+        message: `${
+          follower.displayName || follower.username
+        } started following you`,
+        data: {
+          followerUsername: follower.username,
+          followerDisplayName: follower.displayName,
+          followerAvatarUrl: follower.avatarUrl,
+        },
+      });
+    } catch (error) {
+      // Log the error but don't fail the follow operation
+      console.error("Error creating follow notification:", error);
+    }
+
     return { success: true };
   }
 

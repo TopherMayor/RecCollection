@@ -8,13 +8,13 @@ export default defineConfig({
     proxy: {
       // Proxy API requests to the backend server
       "/api": {
-        target: `http://localhost:${process.env.VITE_BACKEND_PORT || "3001"}`,
+        target: `http://127.0.0.1:${process.env.VITE_BACKEND_PORT || "3001"}`,
         changeOrigin: true,
         secure: false,
       },
       // Proxy uploads directory for images
       "/uploads": {
-        target: `http://localhost:${process.env.VITE_BACKEND_PORT || "3001"}`,
+        target: `http://127.0.0.1:${process.env.VITE_BACKEND_PORT || "3001"}`,
         changeOrigin: true,
         secure: false,
       },

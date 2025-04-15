@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { api } from '../api';
-import NotificationList from './NotificationList';
+import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { api } from "../api";
+import NotificationList from "./NotificationList";
 
 export default function NotificationBell() {
   const { isAuthenticated } = useAuth();
@@ -13,14 +13,14 @@ export default function NotificationBell() {
   // Fetch unread notification count
   const fetchUnreadCount = async () => {
     if (!isAuthenticated) return;
-    
+
     try {
-      const response = await api.get('/notifications/unread-count');
-      if (response.data.success) {
-        setUnreadCount(response.data.count);
+      const response = await api.notifications.getUnreadCount();
+      if (response.success) {
+        setUnreadCount(response.count);
       }
     } catch (error) {
-      console.error('Error fetching unread notification count:', error);
+      console.error("Error fetching unread notification count:", error);
     }
   };
 
@@ -32,15 +32,15 @@ export default function NotificationBell() {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     if (!isAuthenticated) return;
-    
+
     try {
       setLoading(true);
-      const response = await api.patch('/notifications/read-all');
-      if (response.data.success) {
+      const response = await api.notifications.markAllAsRead();
+      if (response.success) {
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error("Error marking all notifications as read:", error);
     } finally {
       setLoading(false);
     }
@@ -57,9 +57,9 @@ export default function NotificationBell() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -67,10 +67,10 @@ export default function NotificationBell() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchUnreadCount();
-      
+
       // Set up polling for new notifications (every 30 seconds)
       const interval = setInterval(fetchUnreadCount, 30000);
-      
+
       return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
@@ -103,7 +103,7 @@ export default function NotificationBell() {
         </svg>
         {unreadCount > 0 && (
           <span className="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
@@ -112,14 +112,16 @@ export default function NotificationBell() {
         <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <div className="py-1">
             <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+              <h3 className="text-sm font-medium text-gray-900">
+                Notifications
+              </h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
                   disabled={loading}
                   className="text-xs text-indigo-600 hover:text-indigo-900"
                 >
-                  {loading ? 'Marking...' : 'Mark all as read'}
+                  {loading ? "Marking..." : "Mark all as read"}
                 </button>
               )}
             </div>

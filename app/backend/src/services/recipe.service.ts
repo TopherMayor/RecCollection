@@ -318,8 +318,8 @@ export class RecipeService {
           .where(eq(schema.users.id, userId))
           .limit(1);
 
-        // Return the created recipe with user info
-        return {
+        // Create the recipe object to return
+        const createdRecipe = {
           ...recipe,
           user,
           ingredients: input.ingredients || [],
@@ -329,10 +329,89 @@ export class RecipeService {
             : [],
           tags: input.tags ? input.tags.map((name) => ({ id: 0, name })) : [],
         };
+
+        // Create notifications for followers if the recipe is not private
+        if (!input.isPrivate) {
+          // Use setTimeout to make this non-blocking
+          setTimeout(() => {
+            this.createNewPostNotifications(
+              userId,
+              recipe.id,
+              recipe.title
+            ).catch((error) => {
+              console.error("Error creating new post notifications:", error);
+            });
+          }, 0);
+        }
+
+        return createdRecipe;
       });
     } catch (error) {
       console.error("Error creating recipe:", error);
       throw new HTTPException(500, { message: "Failed to create recipe" });
+    }
+  }
+
+  // Create notifications for followers when a new post is created
+  private async createNewPostNotifications(
+    userId: number,
+    recipeId: number,
+    recipeTitle: string
+  ) {
+    try {
+      // Import the notification service
+      const { NotificationService } = await import("./notification.service");
+      const notificationService = new NotificationService();
+
+      // Get the user who created the recipe
+      const user = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+        columns: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+        },
+      });
+
+      if (!user) {
+        throw new Error(`User not found with ID: ${userId}`);
+      }
+
+      // Get all followers of this user
+      const followers = await db
+        .select({
+          followerId: schema.follows.followerId,
+        })
+        .from(schema.follows)
+        .where(eq(schema.follows.followingId, userId));
+
+      // Create a notification for each follower
+      for (const follower of followers) {
+        await notificationService.createNotification({
+          userId: follower.followerId, // The follower receives the notification
+          type: "new_post",
+          senderId: userId, // The recipe creator is the sender
+          recipeId: recipeId, // Link to the new recipe
+          message: `${
+            user.displayName || user.username
+          } posted a new recipe: ${recipeTitle}`,
+          data: {
+            recipeId: recipeId,
+            recipeTitle: recipeTitle,
+            creatorUsername: user.username,
+            creatorDisplayName: user.displayName,
+            creatorAvatarUrl: user.avatarUrl,
+          },
+        });
+      }
+
+      console.log(
+        `Created ${followers.length} notifications for new recipe ${recipeId}`
+      );
+    } catch (error) {
+      console.error("Error creating new post notifications:", error);
+      // Don't throw the error, just log it
     }
   }
 

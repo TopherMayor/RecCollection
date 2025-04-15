@@ -3,6 +3,12 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import ShareRecipeModal from "../components/ShareRecipeModal";
+import ResponsiveContainer from "../components/layout/ResponsiveContainer";
+import { Typography, Heading, Text } from "../components/ui/Typography";
+import {
+  ResponsiveButton,
+  ResponsiveLinkButton,
+} from "../components/ui/ResponsiveButton";
 
 interface Ingredient {
   id: number;
@@ -195,36 +201,52 @@ export default function RecipeDetail() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
+      <ResponsiveContainer width="xl" padding="md" className="py-4 sm:py-8">
+        <div className="flex justify-center items-center h-40 sm:h-64">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </ResponsiveContainer>
     );
   }
 
   if (!recipe) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          <p className="font-bold">Recipe not found</p>
-          <p>
+      <ResponsiveContainer width="xl" padding="md" className="py-4 sm:py-8">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-4">
+          <Heading level="h3" size="lg" weight="bold" className="mb-2">
+            Recipe not found
+          </Heading>
+          <Text size="base" className="mb-3">
             The recipe you're looking for doesn't exist or has been removed.
-          </p>
-          <p className="mt-2">
-            <Link
-              to="/app/recipes"
-              className="text-indigo-600 hover:text-indigo-800"
+          </Text>
+          <Link
+            to="/app/recipes"
+            className="text-indigo-600 hover:text-indigo-800 text-sm sm:text-base font-medium inline-flex items-center"
+          >
+            <svg
+              className="w-4 h-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              ← Back to recipes
-            </Link>
-          </p>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to recipes
+          </Link>
         </div>
-      </div>
+      </ResponsiveContainer>
     );
   }
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <ResponsiveContainer width="xl" padding="md" className="py-4 sm:py-8">
         {/* Delete confirmation dialog */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -233,8 +255,8 @@ export default function RecipeDetail() {
                 Delete Recipe
               </h3>
               <p className="text-gray-500 mb-6">
-                Are you sure you want to delete this recipe? This action cannot be
-                undone.
+                Are you sure you want to delete this recipe? This action cannot
+                be undone.
               </p>
 
               <div className="flex justify-end space-x-3">
@@ -283,13 +305,13 @@ export default function RecipeDetail() {
           </div>
         )}
 
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <Link
             to="/app/recipes"
-            className="text-indigo-600 hover:text-indigo-800 flex items-center"
+            className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm sm:text-base"
           >
             <svg
-              className="w-5 h-5 mr-1"
+              className="w-4 h-4 sm:w-5 sm:h-5 mr-1"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -307,94 +329,112 @@ export default function RecipeDetail() {
         </div>
 
         {recipe && (
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 sm:mb-0">
+          <div className="bg-white shadow overflow-hidden rounded-lg">
+            <div className="px-3 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+              <Heading
+                level="h1"
+                size="2xl"
+                weight="bold"
+                className="mb-3 sm:mb-0 text-gray-900"
+              >
                 {recipe.title}
-              </h1>
+              </Heading>
 
-              <div className="flex items-center space-x-2">
-                <button
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <ResponsiveButton
                   onClick={() => setShowShareModal(true)}
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  variant="success"
+                  size="sm"
+                  icon={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                  }
+                  iconPosition="left"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
                   Share
-                </button>
+                </ResponsiveButton>
                 {isOwner && (
-                  <div className="flex space-x-2">
-                    <Link
+                  <div className="flex gap-2">
+                    <ResponsiveLinkButton
                       to={`/app/edit/${recipe.id}`}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      variant="primary"
+                      size="sm"
+                      icon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                      }
+                      iconPosition="left"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      Edit Recipe
-                    </Link>
+                      Edit
+                    </ResponsiveLinkButton>
 
-                    <button
+                    <ResponsiveButton
                       onClick={handleDeleteClick}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      variant="danger"
+                      size="sm"
+                      icon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      }
+                      iconPosition="left"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
                       Delete
-                    </button>
+                    </ResponsiveButton>
                   </div>
                 )}
               </div>
             </div>
 
             <div className="border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-1 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div className="md:col-span-1 p-3 sm:p-4">
                   {recipe.imageUrl || recipe.thumbnailUrl ? (
                     <img
                       src={recipe.imageUrl || recipe.thumbnailUrl}
                       alt={recipe.title}
                       className="w-full h-auto rounded-lg shadow-md"
+                      loading="lazy"
                     />
                   ) : (
-                    <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-48 sm:h-64 bg-gray-200 rounded-lg flex items-center justify-center">
                       <svg
-                        className="w-16 h-16 text-gray-400"
+                        className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -410,20 +450,25 @@ export default function RecipeDetail() {
                     </div>
                   )}
 
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium text-gray-900">
+                  <div className="mt-3 sm:mt-4">
+                    <Heading
+                      level="h3"
+                      size="lg"
+                      weight="medium"
+                      className="text-gray-900"
+                    >
                       Recipe Info
-                    </h3>
-                    <dl className="mt-2 text-sm text-gray-600">
-                      <div className="mt-1 flex justify-between">
+                    </Heading>
+                    <dl className="mt-2 text-xs sm:text-sm text-gray-600">
+                      <div className="mt-1 flex justify-between items-center">
                         <dt className="font-medium">Prep Time:</dt>
                         <dd>{formatTime(recipe.prepTime)}</dd>
                       </div>
-                      <div className="mt-1 flex justify-between">
+                      <div className="mt-1 flex justify-between items-center">
                         <dt className="font-medium">Cooking Time:</dt>
                         <dd>{formatTime(recipe.cookingTime)}</dd>
                       </div>
-                      <div className="mt-1 flex justify-between">
+                      <div className="mt-1 flex justify-between items-center">
                         <dt className="font-medium">Servings:</dt>
                         <dd>
                           {recipe.servingSize
@@ -433,27 +478,33 @@ export default function RecipeDetail() {
                             : "N/A"}
                         </dd>
                       </div>
-                      <div className="mt-1 flex justify-between">
+                      <div className="mt-1 flex justify-between items-center">
                         <dt className="font-medium">Difficulty:</dt>
                         <dd>{renderDifficultyBadge(recipe.difficultyLevel)}</dd>
                       </div>
                     </dl>
                   </div>
 
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium text-gray-900">
+                  <div className="mt-3 sm:mt-4">
+                    <Heading
+                      level="h3"
+                      size="lg"
+                      weight="medium"
+                      className="text-gray-900"
+                    >
                       Created By
-                    </h3>
+                    </Heading>
                     <div className="mt-2 flex items-center">
                       {recipe.user.avatarUrl ? (
                         <img
                           src={recipe.user.avatarUrl}
                           alt={recipe.user.displayName || recipe.user.username}
-                          className="h-8 w-8 rounded-full mr-2"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full mr-2"
+                          loading="lazy"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
-                          <span className="text-indigo-800 font-medium">
+                        <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                          <span className="text-indigo-800 font-medium text-xs sm:text-sm">
                             {(recipe.user.displayName || recipe.user.username)
                               ?.charAt(0)
                               .toUpperCase()}
@@ -462,7 +513,7 @@ export default function RecipeDetail() {
                       )}
                       <Link
                         to={`/app/profile/${recipe.user.username}`}
-                        className="text-indigo-600 hover:text-indigo-800"
+                        className="text-indigo-600 hover:text-indigo-800 text-sm sm:text-base"
                       >
                         {recipe.user.displayName || recipe.user.username}
                       </Link>
@@ -470,15 +521,20 @@ export default function RecipeDetail() {
                   </div>
 
                   {recipe.categories && recipe.categories.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-medium text-gray-900">
+                    <div className="mt-3 sm:mt-4">
+                      <Heading
+                        level="h3"
+                        size="lg"
+                        weight="medium"
+                        className="text-gray-900"
+                      >
                         Categories
-                      </h3>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      </Heading>
+                      <div className="mt-2 flex flex-wrap gap-1 sm:gap-2">
                         {recipe.categories.map((category) => (
                           <span
                             key={category.id}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                           >
                             {category.name}
                           </span>
@@ -488,15 +544,20 @@ export default function RecipeDetail() {
                   )}
 
                   {recipe.tags && recipe.tags.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-medium text-gray-900">
+                    <div className="mt-3 sm:mt-4">
+                      <Heading
+                        level="h3"
+                        size="lg"
+                        weight="medium"
+                        className="text-gray-900"
+                      >
                         Tags
-                      </h3>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      </Heading>
+                      <div className="mt-2 flex flex-wrap gap-1 sm:gap-2">
                         {recipe.tags.map((tag) => (
                           <span
                             key={tag.id}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
                           >
                             {tag.name}
                           </span>
@@ -506,25 +567,30 @@ export default function RecipeDetail() {
                   )}
 
                   {recipe.sourceUrl && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-medium text-gray-900">
+                    <div className="mt-3 sm:mt-4">
+                      <Heading
+                        level="h3"
+                        size="lg"
+                        weight="medium"
+                        className="text-gray-900"
+                      >
                         Source
-                      </h3>
+                      </Heading>
                       <div className="mt-2">
                         {recipe.sourceType && (
-                          <div className="text-sm text-gray-600 mb-1">
+                          <Text size="sm" className="text-gray-600 mb-1">
                             {recipe.sourceType}
-                          </div>
+                          </Text>
                         )}
                         <a
                           href={recipe.sourceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-indigo-600 hover:text-indigo-800 flex items-center"
+                          className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm sm:text-base"
                         >
                           View original recipe
                           <svg
-                            className="w-5 h-5 ml-1"
+                            className="w-4 h-4 sm:w-5 sm:h-5 ml-1"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -543,20 +609,24 @@ export default function RecipeDetail() {
                   )}
                 </div>
 
-                <div className="md:col-span-2 p-4">
-                  <div className="mb-4">
-                    <p className="text-gray-700">{recipe.description}</p>
+                <div className="md:col-span-2 p-3 sm:p-4">
+                  <div className="mb-3 sm:mb-4">
+                    <Text size="base" className="text-gray-700">
+                      {recipe.description}
+                    </Text>
                   </div>
 
                   <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex space-x-8">
+                    <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
                       <button
                         className={`${
                           activeTab === "ingredients"
                             ? "border-indigo-500 text-indigo-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                        } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
                         onClick={() => setActiveTab("ingredients")}
+                        aria-selected={activeTab === "ingredients"}
+                        role="tab"
                       >
                         Ingredients
                       </button>
@@ -565,8 +635,10 @@ export default function RecipeDetail() {
                           activeTab === "instructions"
                             ? "border-indigo-500 text-indigo-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                        } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
                         onClick={() => setActiveTab("instructions")}
+                        aria-selected={activeTab === "instructions"}
+                        role="tab"
                       >
                         Instructions
                       </button>
@@ -575,33 +647,43 @@ export default function RecipeDetail() {
                           activeTab === "notes"
                             ? "border-indigo-500 text-indigo-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                        } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
                         onClick={() => setActiveTab("notes")}
+                        aria-selected={activeTab === "notes"}
+                        role="tab"
                       >
                         Notes
                       </button>
                     </nav>
                   </div>
 
-                  <div className="py-4">
+                  <div className="py-3 sm:py-4">
                     {activeTab === "ingredients" && (
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        <Heading
+                          level="h3"
+                          size="lg"
+                          weight="medium"
+                          className="text-gray-900 mb-3 sm:mb-4"
+                        >
                           Ingredients
-                        </h3>
+                        </Heading>
                         {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                          <ul className="list-disc pl-5 space-y-2">
+                          <ul className="list-disc pl-4 sm:pl-5 space-y-1.5 sm:space-y-2 text-sm sm:text-base">
                             {recipe.ingredients
                               .sort((a, b) => a.orderIndex - b.orderIndex)
                               .map((ingredient) => (
-                                <li key={ingredient.id} className="text-gray-700">
+                                <li
+                                  key={ingredient.id}
+                                  className="text-gray-700"
+                                >
                                   <span className="font-medium">
                                     {ingredient.quantity}{" "}
                                     {ingredient.unit && ingredient.unit}{" "}
                                   </span>
                                   {ingredient.name}
                                   {ingredient.notes && (
-                                    <span className="text-gray-500 italic ml-2">
+                                    <span className="text-gray-500 italic ml-1 sm:ml-2 text-xs sm:text-sm">
                                       ({ingredient.notes})
                                     </span>
                                   )}
@@ -609,26 +691,32 @@ export default function RecipeDetail() {
                               ))}
                           </ul>
                         ) : (
-                          <p className="text-gray-500 italic">
+                          <Text size="base" className="text-gray-500 italic">
                             No ingredients listed
-                          </p>
+                          </Text>
                         )}
                       </div>
                     )}
 
                     {activeTab === "instructions" && (
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        <Heading
+                          level="h3"
+                          size="lg"
+                          weight="medium"
+                          className="text-gray-900 mb-3 sm:mb-4"
+                        >
                           Instructions
-                        </h3>
-                        {recipe.instructions && recipe.instructions.length > 0 ? (
-                          <ol className="list-decimal pl-5 space-y-4">
+                        </Heading>
+                        {recipe.instructions &&
+                        recipe.instructions.length > 0 ? (
+                          <ol className="list-decimal pl-4 sm:pl-5 space-y-3 sm:space-y-4 text-sm sm:text-base">
                             {recipe.instructions
                               .sort((a, b) => a.stepNumber - b.stepNumber)
                               .map((instruction) => (
                                 <li
                                   key={instruction.id}
-                                  className="text-gray-700"
+                                  className="text-gray-700 pb-2"
                                 >
                                   <div className="mb-2">
                                     {instruction.description}
@@ -638,31 +726,37 @@ export default function RecipeDetail() {
                                       src={instruction.imageUrl}
                                       alt={`Step ${instruction.stepNumber}`}
                                       className="mt-2 rounded-md max-w-full h-auto"
+                                      loading="lazy"
                                     />
                                   )}
                                 </li>
                               ))}
                           </ol>
                         ) : (
-                          <p className="text-gray-500 italic">
+                          <Text size="base" className="text-gray-500 italic">
                             No instructions listed
-                          </p>
+                          </Text>
                         )}
                       </div>
                     )}
 
                     {activeTab === "notes" && (
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        <Heading
+                          level="h3"
+                          size="lg"
+                          weight="medium"
+                          className="text-gray-900 mb-3 sm:mb-4"
+                        >
                           Notes
-                        </h3>
-                        <p className="text-gray-700">
+                        </Heading>
+                        <Text size="base" className="text-gray-700">
                           {recipe.description || (
-                            <span className="text-gray-500 italic">
+                            <span className="text-gray-500 italic text-sm sm:text-base">
                               No additional notes
                             </span>
                           )}
-                        </p>
+                        </Text>
                       </div>
                     )}
                   </div>
@@ -671,7 +765,7 @@ export default function RecipeDetail() {
             </div>
           </div>
         )}
-      </div>
+      </ResponsiveContainer>
 
       {/* Share Recipe Modal */}
       {recipe && (

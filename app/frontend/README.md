@@ -2,6 +2,31 @@
 
 This is the frontend for the RecCollection application, a recipe collection and management system.
 
+## UI Component Library
+
+The application uses a custom UI component library for consistent styling and improved maintainability. The library includes components for layout, typography, forms, and media.
+
+For detailed documentation, see [UI Component Library Documentation](/docs/UI_COMPONENT_LIBRARY.md).
+
+### Basic Usage
+
+```tsx
+import { Card, CardBody, Heading, Text } from "../components/ui";
+
+function MyComponent() {
+  return (
+    <Card shadow="md" padding="lg">
+      <CardBody>
+        <Heading level="h2" size="xl" weight="bold">
+          Card Title
+        </Heading>
+        <Text className="text-gray-600">Card content goes here.</Text>
+      </CardBody>
+    </Card>
+  );
+}
+```
+
 ## Development
 
 ### Setup

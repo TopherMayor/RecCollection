@@ -239,6 +239,9 @@ export const notificationPreferences = pgTable("notification_preferences", {
     .notNull()
     .default(true),
   shareNotifications: boolean("share_notifications").notNull().default(true),
+  newPostNotifications: boolean("new_post_notifications")
+    .notNull()
+    .default(true),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

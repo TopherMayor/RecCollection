@@ -3,6 +3,9 @@ import { useSearchParams, Link } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import FollowButton from "../components/FollowButton";
+import { RecipeCard } from "../components/recipe";
+import { ResponsiveContainer, ResponsiveGrid } from "../components/layout";
+import { Card, CardBody, Heading, Text, Image } from "../components/ui";
 
 interface User {
   id: number;
@@ -132,128 +135,68 @@ export default function SearchResults() {
 
   // Render user card
   const renderUserCard = (user: User) => (
-    <div
+    <Card
       key={user.id}
-      className="bg-white rounded-lg shadow-md overflow-hidden"
+      className="overflow-hidden"
     >
-      <div className="p-4 flex items-center">
+      <CardBody className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center">
         <div className="flex-shrink-0">
           {user.avatarUrl ? (
-            <img
+            <Image
               src={user.avatarUrl}
               alt={user.displayName || user.username}
-              className="h-12 w-12 rounded-full object-cover"
+              className="h-10 w-10 sm:h-12 sm:w-12 rounded-full"
+              objectFit="cover"
+              rounded="full"
             />
           ) : (
-            <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
-              <span className="text-indigo-800 font-medium">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+              <Text className="text-indigo-800 font-medium">
                 {(user.displayName || user.username)?.charAt(0).toUpperCase()}
-              </span>
+              </Text>
             </div>
           )}
         </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-medium text-gray-900">
+        <div className="ml-0 sm:ml-4 mt-2 sm:mt-0">
+          <Heading level="h3" size="lg" weight="medium" className="text-gray-900">
             {user.displayName || user.username}
-          </h3>
-          <p className="text-sm text-gray-500">@{user.username}</p>
+          </Heading>
+          <Text size="sm" className="text-gray-500">@{user.username}</Text>
           {user.bio && (
-            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+            <Text size="sm" className="mt-1 text-gray-600 line-clamp-2">
               {user.bio}
-            </p>
+            </Text>
           )}
         </div>
-        <div className="ml-auto flex flex-col space-y-2">
+        <div className="ml-auto flex flex-col space-y-2 mt-2 sm:mt-0">
           <Link
             to={`/app/profile/${user.username}`}
-            className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             View Profile
           </Link>
           <FollowButton username={user.username} size="sm" />
         </div>
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 
   // Render recipe card
   const renderRecipeCard = (recipe: Recipe) => (
-    <div
+    <RecipeCard
       key={recipe.id}
-      className="bg-white rounded-lg shadow-md overflow-hidden"
-    >
-      <div className="h-48 bg-gray-200 relative">
-        {recipe.imageUrl || recipe.thumbnailUrl || recipe.thumbnailPath ? (
-          <img
-            src={
-              recipe.imageUrl ||
-              recipe.thumbnailUrl ||
-              (recipe.thumbnailPath ? `/api${recipe.thumbnailPath}` : undefined)
-            }
-            alt={recipe.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = `https://picsum.photos/seed/${recipe.id}/800/600`;
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg
-              className="w-16 h-16 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-        )}
-      </div>
-      <div className="p-4">
-        <div className="flex items-center mb-2">
-          <div className="flex-shrink-0">
-            {recipe.user?.avatarUrl ? (
-              <img
-                src={recipe.user.avatarUrl}
-                alt={recipe.user.displayName || recipe.user.username}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                <span className="text-indigo-800 font-medium">
-                  {(recipe.user?.displayName || recipe.user?.username)
-                    ?.charAt(0)
-                    .toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="ml-2">
-            <Link
-              to={`/app/profile/${recipe.user?.username}`}
-              className="text-sm font-medium text-gray-900 hover:text-indigo-600"
-            >
-              {recipe.user?.displayName || recipe.user?.username}
-            </Link>
-          </div>
-        </div>
-        <h3 className="text-lg font-bold mb-2 line-clamp-1">{recipe.title}</h3>
-        <p className="text-gray-600 mb-4 line-clamp-2">{recipe.description}</p>
-        <Link
-          to={`/app/recipe/${recipe.id}`}
-          className="text-indigo-600 hover:text-indigo-800 font-medium"
-        >
-          View Recipe →
-        </Link>
-      </div>
-    </div>
+      id={recipe.id}
+      title={recipe.title}
+      description={recipe.description}
+      imageUrl={
+        recipe.imageUrl ||
+        recipe.thumbnailUrl ||
+        (recipe.thumbnailPath ? `/api${recipe.thumbnailPath}` : undefined)
+      }
+      username={recipe.user?.displayName || recipe.user?.username}
+      userId={recipe.user?.id}
+    />
+  )
   );
 
   // Render pagination
@@ -337,36 +280,44 @@ export default function SearchResults() {
 
   if (!isAuthenticated && !authLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          <p className="font-bold">Please log in</p>
-          <p>You need to be logged in to search for recipes and users.</p>
-        </div>
-      </div>
+      <ResponsiveContainer width="xl" padding={true} className="py-4 sm:py-8">
+        <Card className="bg-yellow-100 border-yellow-400 text-yellow-700 mb-4 sm:mb-6">
+          <CardBody>
+            <Heading level="h4" size="lg" weight="bold" className="mb-1">
+              Please log in
+            </Heading>
+            <Text>
+              You need to be logged in to search for recipes and users.
+            </Text>
+          </CardBody>
+        </Card>
+      </ResponsiveContainer>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Search Results</h1>
+    <ResponsiveContainer width="xl" padding={true} className="py-4 sm:py-8">
+      <Heading level="h1" size="3xl" weight="bold" className="mb-2">Search Results</Heading>
       {query ? (
-        <p className="text-gray-600 mb-6">Showing results for "{query}"</p>
+        <Text className="text-gray-600 mb-4 sm:mb-6">Showing results for "{query}"</Text>
       ) : (
-        <p className="text-gray-600 mb-6">
+        <Text className="text-gray-600 mb-4 sm:mb-6">
           Enter a search term to find recipes and users
-        </p>
+        </Text>
       )}
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-gray-200 mb-4 sm:mb-6">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
           <button
             onClick={() => handleTabChange("all")}
             className={`${
               activeTab === "all"
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
+            aria-selected={activeTab === "all"}
+            role="tab"
           >
             All
           </button>
@@ -376,7 +327,9 @@ export default function SearchResults() {
               activeTab === "recipes"
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
+            aria-selected={activeTab === "recipes"}
+            role="tab"
           >
             Recipes{" "}
             {results?.recipes?.pagination.total
@@ -389,7 +342,9 @@ export default function SearchResults() {
               activeTab === "users"
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            } whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0`}
+            aria-selected={activeTab === "users"}
+            role="tab"
           >
             Users{" "}
             {results?.users?.pagination.total
@@ -401,17 +356,21 @@ export default function SearchResults() {
 
       {/* Loading state */}
       {loading && (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="flex justify-center items-center h-40 sm:h-64">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
       )}
 
       {/* Error state */}
       {error && !loading && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-bold">Error</p>
-          <p>{error}</p>
-        </div>
+        <Card className="bg-red-100 border-red-400 text-red-700 mb-4 sm:mb-6">
+          <CardBody>
+            <Heading level="h4" size="lg" weight="bold" className="mb-1">
+              Error
+            </Heading>
+            <Text>{error}</Text>
+          </CardBody>
+        </Card>
       )}
 
       {/* No results */}
@@ -424,9 +383,13 @@ export default function SearchResults() {
           !results.recipes?.items.length) ||
           (activeTab === "users" && !results.users?.items.length) ||
           (activeTab === "recipes" && !results.recipes?.items.length)) && (
-          <div className="bg-gray-100 p-6 rounded-lg text-center">
-            <p className="text-gray-600">No results found for "{query}"</p>
-          </div>
+          <Card className="bg-gray-100 text-center">
+            <CardBody>
+              <Text className="text-gray-600">
+                No results found for "{query}"
+              </Text>
+            </CardBody>
+          </Card>
         )}
 
       {/* Results */}
@@ -437,7 +400,7 @@ export default function SearchResults() {
             results.users?.items.length > 0 && (
               <div>
                 {activeTab === "all" && (
-                  <h2 className="text-2xl font-bold mb-4">Users</h2>
+                  <Heading level="h2" size="2xl" weight="bold" className="mb-3 sm:mb-4">Users</Heading>
                 )}
                 <div className="space-y-4">
                   {results.users.items.map(renderUserCard)}
@@ -452,11 +415,14 @@ export default function SearchResults() {
             results.recipes?.items.length > 0 && (
               <div>
                 {activeTab === "all" && (
-                  <h2 className="text-2xl font-bold mb-4">Recipes</h2>
+                  <Heading level="h2" size="2xl" weight="bold" className="mb-3 sm:mb-4">Recipes</Heading>
                 )}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <ResponsiveGrid
+                  columns={{ default: 1, sm: 2, lg: 3 }}
+                  gap="md"
+                >
                   {results.recipes.items.map(renderRecipeCard)}
-                </div>
+                </ResponsiveGrid>
                 {activeTab !== "all" &&
                   renderPagination(results.recipes.pagination)}
               </div>

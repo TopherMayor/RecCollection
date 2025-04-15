@@ -45,6 +45,8 @@ Detailed documentation is available in the `docs` directory:
 - [API Documentation](docs/api_documentation.md)
 - [Database Schema](docs/database_schema.md)
 - [Frontend Components](docs/frontend_components.md)
+- [UI Component Library](docs/UI_COMPONENT_LIBRARY.md)
+- [Responsive Design](docs/responsive-design.md)
 - [AI Integration](docs/ai_integration.md)
 - [Social Media Import](docs/social_media_import.md)
 - [Image Handling](docs/image_handling.md)
@@ -100,10 +102,13 @@ The project is currently in active development with the following components imp
 ### Frontend
 
 - User interface with React and Tailwind CSS
+- Comprehensive UI component library for consistent styling
 - Authentication pages (login, register, profile)
 - Recipe pages (list, detail, create)
 - Import functionality for social media recipes
 - Responsive design for mobile and desktop
+- Notification system with email and SMS integration
+- Recipe sharing via email, SMS, and shareable links
 
 ## Testing
 
