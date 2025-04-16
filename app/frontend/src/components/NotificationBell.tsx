@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../api";
 import NotificationList from "./NotificationList";
@@ -11,7 +11,7 @@ export default function NotificationBell() {
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // Fetch unread notification count
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     if (!isAuthenticated) return;
 
     try {
@@ -22,7 +22,7 @@ export default function NotificationBell() {
     } catch (error) {
       console.error("Error fetching unread notification count:", error);
     }
-  };
+  }, [isAuthenticated]);
 
   // Toggle notifications panel
   const toggleNotifications = () => {
@@ -73,7 +73,7 @@ export default function NotificationBell() {
 
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchUnreadCount]);
 
   // Don't render if not authenticated
   if (!isAuthenticated) {

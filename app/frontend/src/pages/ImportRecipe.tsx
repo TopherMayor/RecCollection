@@ -93,7 +93,7 @@ export default function ImportRecipe() {
   // Validate YouTube URL format
   const validateYouTubeUrl = (url: string): boolean => {
     const youtubeRegex = [
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/i,
+      /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/i,
       /(?:youtube\.com\/shorts\/)([^"&?/ ]{11})/i,
       /youtube\.com\/watch\?v=([^"&?/ ]{11})/i,
       /youtube\.com\/embed\/([^"&?/ ]{11})/i,
