@@ -5,18 +5,21 @@ RecCollection is a web application that allows users to create and share recipes
 ## Features
 
 - Create, edit, and delete recipes
+- Organize recipes into collections
 - Import recipes from Instagram and TikTok
 - AI-generated recipe names and descriptions
-- Search and filter recipes
+- Advanced search and filtering
 - User authentication and profiles
 - Social features (likes, comments, sharing)
+- Real-time notifications (email, SMS, in-app)
+- Recipe sharing via email, SMS, and shareable links
 
 ## Tech Stack
 
 - **Runtime Environment**: Bun
 - **Backend Framework**: Hono
 - **Database ORM**: Drizzle
-- **Database**: PostgreSQL
+- **Database**: SQLite (with Drizzle ORM)
 - **Frontend Framework**: React
 - **Routing**: React Router v7
 - **Styling**: Tailwind CSS
@@ -27,11 +30,25 @@ RecCollection is a web application that allows users to create and share recipes
 
 ```
 RecCollection/
-├── docs/                 # Documentation
 ├── app/                  # Application code
 │   ├── backend/          # Backend API and server
+│   │   ├── src/          # Source code
+│   │   │   ├── controllers/  # API controllers
+│   │   │   ├── db/       # Database schema and migrations
+│   │   │   ├── middleware/ # Express middleware
+│   │   │   ├── routes/   # API routes
+│   │   │   ├── services/ # Business logic
+│   │   │   └── utils/    # Utility functions
+│   │   └── uploads/      # Uploaded images
 │   └── frontend/         # Frontend React application
-├── scripts/              # Utility scripts
+│       ├── src/          # Source code
+│       │   ├── api/      # API client
+│       │   ├── assets/   # Static assets
+│       │   ├── components/ # UI components
+│       │   ├── pages/    # Page components
+│       │   └── utils/    # Utility functions
+├── cypress/              # End-to-end tests
+├── docs/                 # Documentation
 └── .ai_rules             # AI rules for the project
 ```
 
@@ -62,7 +79,6 @@ Detailed documentation is available in the `docs` directory:
 
 - Bun (v1.0.0 or later)
 - Node.js (v18.0.0 or later)
-- PostgreSQL (v14.0 or later)
 - Git
 
 ### Setup
@@ -92,23 +108,28 @@ The project is currently in active development with the following components imp
 
 ### Backend
 
-- Complete API implementation with Hono.js
-- Database schema and migrations with Drizzle ORM
-- Authentication system with JWT
-- Recipe CRUD operations
-- AI integration for recipe name and description generation
-- Social media import functionality
+- Complete REST API implementation with Hono.js
+- Database schema and migrations with Drizzle ORM (SQLite)
+- JWT authentication system with refresh tokens
+- Recipe CRUD operations with image upload support
+- Recipe collections and organization features
+- AI integration for recipe parsing and generation
+- Social media import from Instagram and TikTok
+- Real-time notification system (email, SMS, in-app)
+- Recipe sharing via email, SMS, and deeplinks
+- Comprehensive test coverage (unit and integration tests)
 
 ### Frontend
 
-- User interface with React and Tailwind CSS
-- Comprehensive UI component library for consistent styling
-- Authentication pages (login, register, profile)
-- Recipe pages (list, detail, create)
-- Import functionality for social media recipes
-- Responsive design for mobile and desktop
-- Notification system with email and SMS integration
-- Recipe sharing via email, SMS, and shareable links
+- Responsive UI built with React and Tailwind CSS
+- Component library using shadcn/ui
+- Authentication flow (login, register, password reset)
+- Recipe management (create, edit, view, delete)
+- Collection management and organization
+- Advanced search and filtering
+- Social features (likes, comments, sharing)
+- Notification center
+- End-to-end testing with Cypress
 
 ## Testing
 

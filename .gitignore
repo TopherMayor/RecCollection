@@ -46,7 +46,18 @@ coverage
 # Bun
 .bun
 
-# Roo configuration
+# Admin documentation
+ADMIN_NOTES.md
+
+# Roo files
+.roomodes
+.roorules-architect
+.roorules-ask
+.roorules-code
+.roorules-debug
+.roorules-test
+memory-bank/
+projectBrief.md
 .roo/
 
 # Memory Bank (contains project context, potentially sensitive)
@@ -72,15 +83,5 @@ Thumbs.db
 
 
 
-# Admin documentation
-ADMIN_NOTES.md
-
-# Roo files
-.roomodes
-.roorules-architect
-.roorules-ask
-.roorules-code
-.roorules-debug
-.roorules-test
-memory-bank/
-projectBrief.md
+# AI rules
+.ai_rules
