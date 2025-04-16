@@ -1,3 +1,14 @@
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
-// Add any global test setup here
+// Mock global fetch
+global.fetch = vi.fn();
+
+// Reset mocks before each test
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
+// Clean up after each test
+afterEach(() => {
+  vi.restoreAllMocks();
+});
