@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
@@ -70,6 +70,88 @@ export default function RecipeDetail() {
   const [activeTab, setActiveTab] = useState<
     "ingredients" | "instructions" | "notes"
   >("ingredients");
+  const [collections, setCollections] = useState<
+    Array<{ id: number; name: string }>
+  >([]);
+  const [showCollectionsDropdown, setShowCollectionsDropdown] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<
+    number | null
+  >(null);
+  const [addingToCollection, setAddingToCollection] = useState(false);
+  const [collectionError, setCollectionError] = useState<string | null>(null);
+  const [collectionSuccess, setCollectionSuccess] = useState<string | null>(
+    null
+  );
+  const collectionsDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close collections dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        collectionsDropdownRef.current &&
+        !collectionsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowCollectionsDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Fetch user's collections
+  useEffect(() => {
+    const fetchCollections = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        const response = await api.collections.getAll();
+
+        if (response.success && response.collections) {
+          setCollections(response.collections);
+        }
+      } catch (err) {
+        console.error("Error fetching collections:", err);
+      }
+    };
+
+    fetchCollections();
+  }, [isAuthenticated]);
+
+  // Handle adding recipe to collection
+  const handleAddToCollection = async () => {
+    if (!selectedCollectionId || !id) return;
+
+    try {
+      setAddingToCollection(true);
+      setCollectionError(null);
+      setCollectionSuccess(null);
+
+      const response = await api.collections.addRecipe(
+        selectedCollectionId,
+        parseInt(id)
+      );
+
+      if (response.success) {
+        setCollectionSuccess(`Added to collection successfully`);
+        setShowCollectionsDropdown(false);
+
+        // Reset after a few seconds
+        setTimeout(() => {
+          setCollectionSuccess(null);
+        }, 3000);
+      } else {
+        setCollectionError(response.message || "Failed to add to collection");
+      }
+    } catch (err) {
+      console.error("Error adding to collection:", err);
+      setCollectionError("An error occurred while adding to collection");
+    } finally {
+      setAddingToCollection(false);
+    }
+  };
 
   // Fetch recipe data
   useEffect(() => {
@@ -341,30 +423,158 @@ export default function RecipeDetail() {
               </Heading>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <ResponsiveButton
-                  onClick={() => setShowShareModal(true)}
-                  variant="success"
-                  size="sm"
-                  icon={
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
-                  }
-                  iconPosition="left"
-                >
-                  Share
-                </ResponsiveButton>
+                <div className="relative" ref={collectionsDropdownRef}>
+                  {isAuthenticated && (
+                    <div className="mr-2">
+                      <ResponsiveButton
+                        onClick={() =>
+                          setShowCollectionsDropdown(!showCollectionsDropdown)
+                        }
+                        variant="outline"
+                        size="sm"
+                        icon={
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                        }
+                        iconPosition="left"
+                      >
+                        Add to Collection
+                      </ResponsiveButton>
+
+                      {/* Collections dropdown */}
+                      {showCollectionsDropdown && (
+                        <div className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                          <div
+                            className="py-1"
+                            role="menu"
+                            aria-orientation="vertical"
+                          >
+                            {collections.length === 0 ? (
+                              <div className="px-4 py-2 text-sm text-gray-500">
+                                You don't have any collections yet.
+                                <Link
+                                  to="/app/collections"
+                                  className="text-indigo-600 hover:text-indigo-800 block mt-1"
+                                >
+                                  Create a collection
+                                </Link>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="px-4 py-2 text-xs font-medium text-gray-700 border-b">
+                                  Select a collection:
+                                </div>
+                                {collections.map((collection) => (
+                                  <button
+                                    key={collection.id}
+                                    className={`block w-full text-left px-4 py-2 text-sm ${
+                                      selectedCollectionId === collection.id
+                                        ? "bg-indigo-100 text-indigo-900"
+                                        : "text-gray-700 hover:bg-gray-100"
+                                    }`}
+                                    onClick={() =>
+                                      setSelectedCollectionId(collection.id)
+                                    }
+                                    role="menuitem"
+                                  >
+                                    {collection.name}
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-100 px-4 py-2">
+                                  <button
+                                    className="w-full text-sm bg-indigo-600 text-white py-1 px-2 rounded hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center"
+                                    onClick={handleAddToCollection}
+                                    disabled={
+                                      !selectedCollectionId ||
+                                      addingToCollection
+                                    }
+                                  >
+                                    {addingToCollection ? (
+                                      <>
+                                        <svg
+                                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                          ></circle>
+                                          <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                          ></path>
+                                        </svg>
+                                        Adding...
+                                      </>
+                                    ) : (
+                                      "Add to Collection"
+                                    )}
+                                  </button>
+                                  {collectionError && (
+                                    <p className="text-xs text-red-600 mt-1">
+                                      {collectionError}
+                                    </p>
+                                  )}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Success message */}
+                      {collectionSuccess && (
+                        <div className="absolute top-0 right-0 mt-10 mr-2 bg-green-100 border border-green-400 text-green-700 px-3 py-1 rounded text-xs">
+                          {collectionSuccess}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <ResponsiveButton
+                    onClick={() => setShowShareModal(true)}
+                    variant="success"
+                    size="sm"
+                    icon={
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                        />
+                      </svg>
+                    }
+                    iconPosition="left"
+                  >
+                    Share
+                  </ResponsiveButton>
+                </div>
                 {isOwner && (
                   <div className="flex gap-2">
                     <ResponsiveLinkButton

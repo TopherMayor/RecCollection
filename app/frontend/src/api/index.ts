@@ -771,4 +771,115 @@ export const api = {
       }
     },
   },
+
+  // Collections API
+  collections: {
+    getAll: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/collections`, {
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error fetching collections:", error);
+        throw error;
+      }
+    },
+
+    getById: async (id: number) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/collections/${id}`, {
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error fetching collection:", error);
+        throw error;
+      }
+    },
+
+    create: async (data: { name: string; description?: string }) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/collections`, {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify(data),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error creating collection:", error);
+        throw error;
+      }
+    },
+
+    update: async (
+      id: number,
+      data: { name?: string; description?: string }
+    ) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/collections/${id}`, {
+          method: "PUT",
+          headers: getHeaders(),
+          body: JSON.stringify(data),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error updating collection:", error);
+        throw error;
+      }
+    },
+
+    delete: async (id: number) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/collections/${id}`, {
+          method: "DELETE",
+          headers: getHeaders(),
+        });
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error deleting collection:", error);
+        throw error;
+      }
+    },
+
+    addRecipe: async (collectionId: number, recipeId: number) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/collections/${collectionId}/recipes`,
+          {
+            method: "POST",
+            headers: getHeaders(),
+            body: JSON.stringify({ recipeId }),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error adding recipe to collection:", error);
+        throw error;
+      }
+    },
+
+    removeRecipe: async (collectionId: number, recipeId: number) => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/collections/${collectionId}/recipes/${recipeId}`,
+          {
+            method: "DELETE",
+            headers: getHeaders(),
+          }
+        );
+
+        return handleResponse(response);
+      } catch (error) {
+        console.error("Error removing recipe from collection:", error);
+        throw error;
+      }
+    },
+  },
 };
