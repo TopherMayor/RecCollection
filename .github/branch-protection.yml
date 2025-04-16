@@ -1,0 +1,10 @@
+rules:  
+  - pattern: 'main'  
+    required_approvals: 2  
+    required_status_checks:  
+      - build  
+      - test  
+      - security-scan  
+    linear_history: true  
+    signature_requirement: vigilant  
+    enforcement_admins: false

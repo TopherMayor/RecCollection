@@ -1,0 +1,6 @@
+required_workflows:
+  - build.yml
+  - test-suite.yml
+  - security-scan.yml
+strict_validation: true
+expiration_days: 90
