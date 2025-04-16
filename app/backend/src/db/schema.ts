@@ -10,6 +10,7 @@ import {
   primaryKey,
   jsonb,
 } from "drizzle-orm/pg-core";
+import { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 // Users table
 export const users = pgTable("users", {
@@ -272,3 +273,39 @@ export const sharedRecipes = pgTable("shared_recipes", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   expiresAt: timestamp("expires_at"), // NULL means no expiration
 });
+
+// Collections table
+export const collections = pgTable("collections", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Recipe-Collections junction table
+export const recipeCollections = pgTable(
+  "recipe_collections",
+  {
+    recipeId: integer("recipe_id")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    collectionId: integer("collection_id")
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.recipeId, table.collectionId] }),
+    };
+  }
+);
+
+// Type definitions for collections
+export type Collection = InferSelectModel<typeof collections>;
+export type NewCollection = InferInsertModel<typeof collections>;
+export type RecipeCollection = InferSelectModel<typeof recipeCollections>;
+export type NewRecipeCollection = InferInsertModel<typeof recipeCollections>;

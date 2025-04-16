@@ -14,6 +14,7 @@ import { searchRoutes } from "./routes/search";
 import { followRoutes } from "./routes/follow";
 import { notificationRoutes } from "./routes/notifications";
 import { sharingRoutes } from "./routes/sharing";
+import collectionsRoutes from "./routes/collections";
 import { AIParserController } from "./controllers/ai-parser.controller";
 import "dotenv/config";
 
@@ -91,6 +92,7 @@ app.route("/api/search", searchRoutes);
 app.route("/api/follow", followRoutes);
 app.route("/api/notifications", notificationRoutes);
 app.route("/api/sharing", sharingRoutes);
+app.route("/api/collections", collectionsRoutes);
 
 // Health check
 app.get("/", (c) =>
