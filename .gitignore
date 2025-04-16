@@ -45,3 +45,30 @@ coverage
 
 # Bun
 .bun
+
+# Roo configuration
+.roo/
+
+# Memory Bank (contains project context, potentially sensitive)
+memory-bank/
+
+# Cypress artifacts
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# Sub-project lock files (assuming root bun.lock is source of truth)
+app/*/bun.lock
+app/*/package-lock.json
+
+# Drizzle Studio
+.drizzle/
+
+# Vite cache
+.vite/
+
+# OS generated files
+Thumbs.db
+
+# Admin documentation
+ADMIN_NOTES.md
