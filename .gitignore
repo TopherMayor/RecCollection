@@ -70,3 +70,5 @@ app/*/package-lock.json
 # OS generated files
 Thumbs.db
 
+# Admin documentation
+ADMIN_NOTES.md
