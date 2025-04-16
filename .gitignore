@@ -45,3 +45,6 @@ coverage
 
 # Bun
 .bun
+
+# Admin documentation
+ADMIN_NOTES.md
