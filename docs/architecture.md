@@ -3,29 +3,32 @@
 ## System Architecture
 
 ### Overview
+
 RecCollection follows a modern web application architecture with a clear separation between the frontend and backend components. The system uses a RESTful API approach with a React frontend and a Hono-based backend, connected to a PostgreSQL database.
 
-```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│   Frontend  │ <──> │   Backend   │ <──> │  Database   │
-│    (React)  │      │   (Hono)    │      │ (PostgreSQL)│
-└─────────────┘      └─────────────┘      └─────────────┘
-                           ↑
-                           │
-                     ┌─────┴─────┐
-                     │ External  │
-                     │   APIs    │
-                     └───────────┘
+```mermaid
+graph TD
+    A[React Frontend] --> B[Hono API Server]
+    B --> C[Drizzle ORM]
+    C --> D[PostgreSQL DB]
+    D --> E[AI Integration]
+    E -->|Processing| B
+    B -->|Data| A
+    F[Social Media APIs] --> B
+    G[Authentication Service] --> B
 ```
 
 ### Frontend Architecture
+
 - **Framework**: React with TypeScript
-- **State Management**: React Context API and hooks
-- **Routing**: React Router v7
-- **Styling**: Tailwind CSS with shadcn/ui components
+- **State Management**: React Router v7 loaders
+- **Component Library**: shadcn/ui
+- **Styling**: Tailwind CSS
 - **Build Tool**: Bun
+- **Example Component**: `app/frontend/src/components/recipe/RecipeForm.tsx`
 
 ### Backend Architecture
+
 - **Framework**: Hono
 - **Runtime**: Bun
 - **API Style**: RESTful
@@ -33,6 +36,7 @@ RecCollection follows a modern web application architecture with a clear separat
 - **Database Access**: Drizzle ORM
 
 ### Database Architecture
+
 - **Database**: PostgreSQL
 - **ORM**: Drizzle
 - **Main Entities**:
@@ -47,6 +51,7 @@ RecCollection follows a modern web application architecture with a clear separat
 ## Data Model
 
 ### Entity Relationship Diagram
+
 ```
 ┌─────────┐       ┌─────────┐       ┌───────────┐
 │  Users  │───┐   │ Recipes │───────│Ingredients│
@@ -62,7 +67,9 @@ RecCollection follows a modern web application architecture with a clear separat
 ```
 
 ### Key Database Tables
+
 1. **users**
+
    - id (PK)
    - username
    - email
@@ -71,6 +78,7 @@ RecCollection follows a modern web application architecture with a clear separat
    - updated_at
 
 2. **recipes**
+
    - id (PK)
    - user_id (FK)
    - title
@@ -83,6 +91,7 @@ RecCollection follows a modern web application architecture with a clear separat
    - updated_at
 
 3. **ingredients**
+
    - id (PK)
    - recipe_id (FK)
    - name
@@ -91,20 +100,24 @@ RecCollection follows a modern web application architecture with a clear separat
    - order
 
 4. **instructions**
+
    - id (PK)
    - recipe_id (FK)
    - step_number
    - description
 
 5. **categories**
+
    - id (PK)
    - name
 
 6. **recipe_categories**
+
    - recipe_id (FK)
    - category_id (FK)
 
 7. **comments**
+
    - id (PK)
    - recipe_id (FK)
    - user_id (FK)
@@ -119,12 +132,14 @@ RecCollection follows a modern web application architecture with a clear separat
 ## API Endpoints
 
 ### User Management
+
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/login` - User login
 - `GET /api/auth/me` - Get current user
 - `PUT /api/users/:id` - Update user profile
 
 ### Recipe Management
+
 - `GET /api/recipes` - List recipes
 - `GET /api/recipes/:id` - Get recipe details
 - `POST /api/recipes` - Create a recipe
@@ -132,25 +147,30 @@ RecCollection follows a modern web application architecture with a clear separat
 - `DELETE /api/recipes/:id` - Delete a recipe
 
 ### Recipe Import
+
 - `POST /api/import/instagram` - Import from Instagram
 - `POST /api/import/tiktok` - Import from TikTok
 
 ### Social Features
+
 - `POST /api/recipes/:id/like` - Like a recipe
 - `DELETE /api/recipes/:id/like` - Unlike a recipe
 - `POST /api/recipes/:id/comments` - Comment on a recipe
 - `GET /api/recipes/:id/comments` - Get recipe comments
 
 ### AI Integration
+
 - `POST /api/ai/generate-name` - Generate recipe name
 - `POST /api/ai/generate-description` - Generate recipe description
 
 ## External Integrations
 
 ### Social Media APIs
+
 - Instagram API for post imports
 - TikTok API for video imports
 
 ### AI Services
+
 - OpenAI API for text generation
 - Custom AI models for recipe analysis
