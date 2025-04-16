@@ -83,9 +83,10 @@ export default function ProfilePage() {
 
         const recipesData = await recipesResponse.json();
         setRecipes(recipesData.recipes || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err as Error;
         console.error("Error fetching profile:", err);
-        setError(err.message || "Failed to load profile");
+        setError(error.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }

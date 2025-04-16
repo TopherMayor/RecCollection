@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { api } from '../api';
+import { useState } from "react";
+import { api } from "../api";
 
 interface ShareRecipeModalProps {
   recipeId: number;
@@ -14,11 +14,11 @@ export default function ShareRecipeModal({
   isOpen,
   onClose,
 }: ShareRecipeModalProps) {
-  const [shareType, setShareType] = useState<'email' | 'sms' | 'link'>('email');
-  const [recipient, setRecipient] = useState('');
-  const [message, setMessage] = useState('');
-  const [expiresInDays, setExpiresInDays] = useState('7');
-  const [shareUrl, setShareUrl] = useState('');
+  const [shareType, setShareType] = useState<"email" | "sms" | "link">("email");
+  const [recipient, setRecipient] = useState("");
+  const [message, setMessage] = useState("");
+  const [expiresInDays, setExpiresInDays] = useState("7");
+  const [shareUrl, setShareUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -26,39 +26,46 @@ export default function ShareRecipeModal({
   // Handle share form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       // Validate form
-      if (shareType !== 'link' && !recipient) {
-        setError(`Please enter a valid ${shareType === 'email' ? 'email address' : 'phone number'}`);
+      if (shareType !== "link" && !recipient) {
+        setError(
+          `Please enter a valid ${
+            shareType === "email" ? "email address" : "phone number"
+          }`
+        );
         return;
       }
-      
+
       // Share recipe
       const response = await api.post(`/sharing/recipes/${recipeId}`, {
-        sharedWith: shareType === 'link' ? 'public' : recipient,
+        sharedWith: shareType === "link" ? "public" : recipient,
         shareType,
         message: message || undefined,
-        expiresInDays: shareType === 'link' ? parseInt(expiresInDays) : undefined,
+        expiresInDays:
+          shareType === "link" ? parseInt(expiresInDays) : undefined,
       });
-      
+
       if (response.data.success) {
         setSuccess(true);
         setShareUrl(response.data.share.shareUrl);
-        
+
         // Clear form if not link sharing
-        if (shareType !== 'link') {
-          setRecipient('');
-          setMessage('');
+        if (shareType !== "link") {
+          setRecipient("");
+          setMessage("");
         }
       }
-    } catch (error: any) {
-      console.error('Error sharing recipe:', error);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error("Error sharing recipe:", error);
       setError(
-        error.response?.data?.message || 'An error occurred while sharing the recipe'
+        err.response?.data?.message ||
+          "An error occurred while sharing the recipe"
       );
     } finally {
       setLoading(false);
@@ -68,16 +75,16 @@ export default function ShareRecipeModal({
   // Copy share URL to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
-    alert('Link copied to clipboard!');
+    alert("Link copied to clipboard!");
   };
 
   // Reset form when modal closes
   const handleClose = () => {
-    setShareType('email');
-    setRecipient('');
-    setMessage('');
-    setExpiresInDays('7');
-    setShareUrl('');
+    setShareType("email");
+    setRecipient("");
+    setMessage("");
+    setExpiresInDays("7");
+    setShareUrl("");
     setError(null);
     setSuccess(false);
     onClose();
@@ -108,7 +115,7 @@ export default function ShareRecipeModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="absolute top-0 right-0 pt-4 pr-4">
             <button
@@ -186,17 +193,17 @@ export default function ShareRecipeModal({
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-green-800">
-                          {shareType === 'email'
+                          {shareType === "email"
                             ? `Recipe shared via email to ${recipient}`
-                            : shareType === 'sms'
+                            : shareType === "sms"
                             ? `Recipe shared via SMS to ${recipient}`
-                            : 'Recipe link created successfully'}
+                            : "Recipe link created successfully"}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {shareType === 'link' && (
+                  {shareType === "link" && (
                     <div className="mt-4">
                       <label
                         htmlFor="share-url"
@@ -233,7 +240,7 @@ export default function ShareRecipeModal({
                       className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
                       onClick={() => {
                         setSuccess(false);
-                        setShareUrl('');
+                        setShareUrl("");
                       }}
                     >
                       Share Again
@@ -268,7 +275,9 @@ export default function ShareRecipeModal({
                           </svg>
                         </div>
                         <div className="ml-3">
-                          <p className="text-sm font-medium text-red-800">{error}</p>
+                          <p className="text-sm font-medium text-red-800">
+                            {error}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -285,8 +294,8 @@ export default function ShareRecipeModal({
                           name="share-type"
                           type="radio"
                           className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          checked={shareType === 'email'}
-                          onChange={() => setShareType('email')}
+                          checked={shareType === "email"}
+                          onChange={() => setShareType("email")}
                         />
                         <label
                           htmlFor="share-email"
@@ -301,8 +310,8 @@ export default function ShareRecipeModal({
                           name="share-type"
                           type="radio"
                           className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          checked={shareType === 'sms'}
-                          onChange={() => setShareType('sms')}
+                          checked={shareType === "sms"}
+                          onChange={() => setShareType("sms")}
                         />
                         <label
                           htmlFor="share-sms"
@@ -317,8 +326,8 @@ export default function ShareRecipeModal({
                           name="share-type"
                           type="radio"
                           className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                          checked={shareType === 'link'}
-                          onChange={() => setShareType('link')}
+                          checked={shareType === "link"}
+                          onChange={() => setShareType("link")}
                         />
                         <label
                           htmlFor="share-link"
@@ -330,34 +339,36 @@ export default function ShareRecipeModal({
                     </div>
                   </div>
 
-                  {shareType !== 'link' && (
+                  {shareType !== "link" && (
                     <div className="mb-4">
                       <label
                         htmlFor="recipient"
                         className="block text-sm font-medium text-gray-700"
                       >
-                        {shareType === 'email' ? 'Email Address' : 'Phone Number'}
+                        {shareType === "email"
+                          ? "Email Address"
+                          : "Phone Number"}
                       </label>
                       <div className="mt-1">
                         <input
-                          type={shareType === 'email' ? 'email' : 'tel'}
+                          type={shareType === "email" ? "email" : "tel"}
                           name="recipient"
                           id="recipient"
                           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                           placeholder={
-                            shareType === 'email'
-                              ? 'friend@example.com'
-                              : '+1 (555) 123-4567'
+                            shareType === "email"
+                              ? "friend@example.com"
+                              : "+1 (555) 123-4567"
                           }
                           value={recipient}
-                          onChange={e => setRecipient(e.target.value)}
+                          onChange={(e) => setRecipient(e.target.value)}
                           required
                         />
                       </div>
                     </div>
                   )}
 
-                  {shareType === 'link' && (
+                  {shareType === "link" && (
                     <div className="mb-4">
                       <label
                         htmlFor="expires"
@@ -371,7 +382,7 @@ export default function ShareRecipeModal({
                           name="expires"
                           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                           value={expiresInDays}
-                          onChange={e => setExpiresInDays(e.target.value)}
+                          onChange={(e) => setExpiresInDays(e.target.value)}
                         >
                           <option value="1">1 day</option>
                           <option value="7">7 days</option>
@@ -398,7 +409,7 @@ export default function ShareRecipeModal({
                         className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                         placeholder="Add a personal message..."
                         value={message}
-                        onChange={e => setMessage(e.target.value)}
+                        onChange={(e) => setMessage(e.target.value)}
                       ></textarea>
                     </div>
                   </div>
@@ -409,7 +420,7 @@ export default function ShareRecipeModal({
                       disabled={loading}
                       className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? 'Sharing...' : 'Share Recipe'}
+                      {loading ? "Sharing..." : "Share Recipe"}
                     </button>
                     <button
                       type="button"

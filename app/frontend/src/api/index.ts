@@ -1,3 +1,5 @@
+import { Recipe, RecipeFormData } from "../types/Recipe";
+
 // API base URL - using the Vite proxy to avoid CORS issues
 const API_BASE_URL = "/api";
 
@@ -359,7 +361,7 @@ export const api = {
       }
     },
 
-    create: async (recipeData: any) => {
+    create: async (recipeData: Partial<Recipe> | RecipeFormData) => {
       try {
         console.log("Creating new recipe:", recipeData);
 
@@ -387,7 +389,10 @@ export const api = {
       }
     },
 
-    update: async (id: number, recipeData: any) => {
+    update: async (
+      id: number,
+      recipeData: Partial<Recipe> | RecipeFormData
+    ) => {
       try {
         console.log(
           `Updating recipe ${id} with data:`,
@@ -748,7 +753,7 @@ export const api = {
       }
     },
 
-    updatePreferences: async (preferences: any) => {
+    updatePreferences: async (preferences: { [key: string]: boolean }) => {
       try {
         const response = await fetch(
           `${API_BASE_URL}/notifications/preferences`,

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import PasswordInput from "../components/PasswordInput";
 
@@ -13,17 +13,6 @@ export default function Login() {
 
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode");
-
-  // Auto-trigger the appropriate login method based on mode
-  useEffect(() => {
-    if (mode === "direct") {
-      handleDirectLogin();
-    } else if (mode === "emergency") {
-      handleEmergencyLogin();
-    }
-  }, [mode, handleDirectLogin, handleEmergencyLogin]);
 
   // Handle normal login form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,10 +30,11 @@ export default function Login() {
 
       await login(email, password);
       navigate("/app/recipes");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
+      const error = err as Error;
       setError(
-        err.message || "Failed to log in. Please check your credentials."
+        error.message || "Failed to log in. Please check your credentials."
       );
     } finally {
       setLoading(false);
@@ -52,7 +42,7 @@ export default function Login() {
   };
 
   // Handle direct login with environment variables
-  const handleDirectLogin = async () => {
+  const handleDirectLogin = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -71,16 +61,17 @@ export default function Login() {
       setTimeout(() => {
         navigate("/app/recipes");
       }, 1000);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
-      setError(err.message || "Login failed");
+      const error = err as Error;
+      setError(error.message || "Login failed");
     } finally {
       setLoading(false);
     }
-  };
+  }, [login, navigate]);
 
   // Handle emergency login (direct API call)
-  const handleEmergencyLogin = async () => {
+  const handleEmergencyLogin = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -128,7 +119,17 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Add useEffect to handle auto-login based on URL parameters
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === "direct") {
+      handleDirectLogin();
+    } else if (mode === "emergency") {
+      handleEmergencyLogin();
+    }
+  }, [handleDirectLogin, handleEmergencyLogin]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
