@@ -1,31 +1,6 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { api } from "../api";
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  displayName?: string;
-  avatarUrl?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (userData: {
-    username: string;
-    email: string;
-    password: string;
-    displayName?: string;
-  }) => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+import { AuthContext, User } from "./AuthContextValue";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

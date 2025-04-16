@@ -68,7 +68,7 @@ function Home() {
             setFilteredRecipes([]);
           } else {
             // Add a placeholder image for recipes without images
-            const recipesWithImages = data.recipes.map((recipe: any) => ({
+            const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
               ...recipe,
               imageUrl:
                 recipe.imageUrl ||
@@ -92,7 +92,7 @@ function Home() {
           if (data && data.recipes) {
             console.log("Setting recipes from API client");
             // Add a placeholder image for recipes without images
-            const recipesWithImages = data.recipes.map((recipe: any) => ({
+            const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
               ...recipe,
               imageUrl:
                 recipe.imageUrl ||
@@ -109,9 +109,10 @@ function Home() {
           setError("Failed to connect to the server. Please try again later.");
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       console.error("Error fetching recipes:", err);
-      setError(err.message || "Failed to fetch recipes");
+      setError(error.message || "Failed to fetch recipes");
     } finally {
       setLoading(false);
     }
@@ -131,7 +132,7 @@ function Home() {
         if (data && data.recipes) {
           console.log("Setting recipes from followed users");
           // Add a placeholder image for recipes without images
-          const recipesWithImages = data.recipes.map((recipe: any) => ({
+          const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
             ...recipe,
             imageUrl:
               recipe.imageUrl ||
@@ -149,9 +150,12 @@ function Home() {
           "Failed to fetch recipes from users you follow. Please try again later."
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       console.error("Error fetching following recipes:", err);
-      setError(err.message || "Failed to fetch recipes from users you follow");
+      setError(
+        error.message || "Failed to fetch recipes from users you follow"
+      );
     } finally {
       setLoading(false);
     }
