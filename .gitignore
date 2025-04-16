@@ -82,3 +82,5 @@ app/*/package-lock.json
 # OS generated files
 Thumbs.db
 
+# AI rules
+.ai_rules
