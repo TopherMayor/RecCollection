@@ -45,3 +45,16 @@ coverage
 
 # Bun
 .bun
+
+# Admin documentation
+ADMIN_NOTES.md
+
+# Roo files
+.roomodes
+.roorules-architect
+.roorules-ask
+.roorules-code
+.roorules-debug
+.roorules-test
+memory-bank/
+projectBrief.md
