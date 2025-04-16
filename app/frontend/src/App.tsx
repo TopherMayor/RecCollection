@@ -26,6 +26,8 @@ import ImportRecipe from "./pages/ImportRecipe";
 import SimpleRecipes from "./pages/SimpleRecipes";
 import ProfilePage from "./pages/ProfilePage";
 import SearchResults from "./pages/SearchResults";
+import Collections from "./pages/Collections";
+import CollectionDetails from "./pages/CollectionDetails";
 
 function App() {
   return (
@@ -65,6 +67,8 @@ function App() {
 
             <Route path="profile/:username" element={<ProfilePage />} />
             <Route path="search" element={<SearchResults />} />
+            <Route path="collections" element={<Collections />} />
+            <Route path="collections/:id" element={<CollectionDetails />} />
           </Route>
 
           {/* Fallback route */}
