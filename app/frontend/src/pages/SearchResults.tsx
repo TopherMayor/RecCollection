@@ -194,7 +194,11 @@ export default function SearchResults() {
       imageUrl={
         recipe.imageUrl ||
         recipe.thumbnailUrl ||
-        (recipe.thumbnailPath ? `/api${recipe.thumbnailPath}` : undefined)
+        (recipe.thumbnailPath
+          ? recipe.thumbnailPath.startsWith("http")
+            ? recipe.thumbnailPath
+            : recipe.thumbnailPath
+          : undefined)
       }
       username={recipe.user?.displayName || recipe.user?.username}
       userId={recipe.user?.id}

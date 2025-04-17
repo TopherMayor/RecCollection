@@ -46,10 +46,9 @@ export class AIParserController {
         console.log(
           `AIParserController: Recipe parsed with thumbnail: ${parsedRecipe.thumbnailPath}`
         );
-        // Set the imageUrl to the thumbnailPath if it exists
-        if (!parsedRecipe.imageUrl) {
-          parsedRecipe.imageUrl = parsedRecipe.thumbnailPath;
-        }
+        // Always set the imageUrl to the thumbnailPath if thumbnailPath exists
+        // This ensures the image is displayed correctly in the frontend
+        parsedRecipe.imageUrl = parsedRecipe.thumbnailPath;
       } else if (parsedRecipe.thumbnailUrl) {
         console.log(
           `AIParserController: Recipe parsed with thumbnail URL: ${parsedRecipe.thumbnailUrl}`
@@ -174,10 +173,9 @@ export class AIParserController {
         console.log(
           `AIParserController: Using thumbnail path from recipe data: ${parsedRecipe.thumbnailPath}`
         );
-        // Set the imageUrl to the thumbnailPath if it exists
-        if (!parsedRecipe.imageUrl) {
-          parsedRecipe.imageUrl = parsedRecipe.thumbnailPath;
-        }
+        // Always set the imageUrl to the thumbnailPath if thumbnailPath exists
+        // This ensures the image is displayed correctly in the frontend
+        parsedRecipe.imageUrl = parsedRecipe.thumbnailPath;
       } else if (parsedRecipe.thumbnailUrl) {
         console.log(
           `AIParserController: Using thumbnail URL from recipe data: ${parsedRecipe.thumbnailUrl}`

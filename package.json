@@ -34,7 +34,9 @@
     "e2e": "start-server-and-test dev http://localhost:5173 cypress:run",
     "e2e:bun": "bun start-server-and-test dev http://localhost:5173 cypress:run",
     "e2e:open": "start-server-and-test dev http://localhost:5173 cypress:open",
-    "e2e:open:bun": "bun start-server-and-test dev http://localhost:5173 cypress:open"
+    "e2e:open:bun": "bun start-server-and-test dev http://localhost:5173 cypress:open",
+    "lint:console": "./scripts/check-console-logs.sh",
+    "lint:console:bun": "bun ./scripts/check-console-logs.sh"
   },
   "dependencies": {},
   "devDependencies": {

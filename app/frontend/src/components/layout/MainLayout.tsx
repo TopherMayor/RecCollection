@@ -11,7 +11,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <div className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+        <div className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:py-8 lg:px-8 xl:max-w-7xl">
           {children}
         </div>
       </main>

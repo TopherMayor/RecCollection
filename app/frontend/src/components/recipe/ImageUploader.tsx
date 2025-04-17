@@ -30,7 +30,10 @@ export default function ImageUploader({
     } else if (thumbnailUrl) {
       return thumbnailUrl;
     } else if (thumbnailPath) {
-      return `${import.meta.env.VITE_API_URL || ""}${thumbnailPath}`;
+      if (thumbnailPath.startsWith("http")) {
+        return thumbnailPath;
+      }
+      return thumbnailPath;
     } else {
       return "/placeholder-image.jpg";
     }

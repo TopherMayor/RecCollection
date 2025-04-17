@@ -25,7 +25,7 @@ interface ResponsiveContainerProps {
  */
 const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   children,
-  width = "lg",
+  width = "xl", // Changed from "lg" to "xl" for better desktop experience
   padding = true,
   className = "",
   as: Component = "div",

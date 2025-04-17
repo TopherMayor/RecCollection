@@ -11,6 +11,8 @@ interface Recipe {
   title: string;
   description: string;
   imageUrl?: string;
+  thumbnailUrl?: string;
+  thumbnailPath?: string;
   user?: {
     id: number;
     username: string;
@@ -266,7 +268,15 @@ export default function SimpleRecipes() {
               id={recipe.id}
               title={recipe.title}
               description={recipe.description}
-              imageUrl={recipe.imageUrl}
+              imageUrl={
+                recipe.imageUrl ||
+                recipe.thumbnailUrl ||
+                (recipe.thumbnailPath
+                  ? recipe.thumbnailPath.startsWith("http")
+                    ? recipe.thumbnailPath
+                    : recipe.thumbnailPath
+                  : undefined)
+              }
               username={recipe.user?.username}
               userId={recipe.user?.id}
               currentUserId={user?.id}

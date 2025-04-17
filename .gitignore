@@ -57,7 +57,7 @@ ADMIN_NOTES.md
 .roorules-debug
 .roorules-test
 memory-bank/
-projectBrief.md
+# projectBrief.md
 .roo/
 
 # Memory Bank (contains project context, potentially sensitive)

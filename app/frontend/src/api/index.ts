@@ -206,6 +206,12 @@ export const api = {
     me: async () => {
       try {
         console.log("Checking authentication status...");
+        // Only make the request if we have a token
+        if (!authToken) {
+          console.log("No auth token available, skipping auth check");
+          return { user: null };
+        }
+
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: getHeaders(),
         });
@@ -221,7 +227,9 @@ export const api = {
         return data;
       } catch (error) {
         console.error("Error checking auth status:", error);
-        throw error;
+        // Don't throw the error, just return null user
+        // This prevents the auth context from clearing localStorage
+        return { user: null };
       }
     },
 

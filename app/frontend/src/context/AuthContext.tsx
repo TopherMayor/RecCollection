@@ -126,14 +126,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             );
             // Clear any redirect count
             localStorage.removeItem("redirectCount");
-          } else {
-            // Server says not authenticated, we should clear all stored data
+          } else if (storedUser && storedToken) {
+            // Server couldn't confirm authentication but we have stored credentials
+            // Keep using the stored user data instead of clearing it
             console.log(
-              "%c Server says not authenticated - clearing all stored data",
+              "%c Server couldn't confirm auth but using stored credentials",
+              "background: orange; color: black; font-size: 14px;"
+            );
+
+            // We'll keep the current user state and stored data
+            console.log("Keeping stored user data for this session");
+          } else {
+            // No stored credentials and server says not authenticated
+            console.log(
+              "%c No stored credentials and server says not authenticated",
               "background: red; color: white; font-size: 14px;"
             );
 
-            // Clear stored data as it's invalid
+            // Clear any stored data
             localStorage.removeItem("user");
             localStorage.removeItem("token");
             localStorage.removeItem("redirectCount");
@@ -143,18 +153,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (apiErr) {
           console.log(
-            "%c API call failed, clearing stored data for security",
-            "background: red; color: white; font-size: 14px;"
+            "%c API call failed, but keeping stored credentials",
+            "background: orange; color: black; font-size: 14px;"
           );
           console.error("Error checking auth status:", apiErr);
 
-          // For security, clear stored data if we can't verify with the server
-          localStorage.removeItem("user");
-          localStorage.removeItem("token");
-          localStorage.removeItem("redirectCount");
-          api.setAuthToken(""); // Clear token in API client
-          setUser(null);
-          console.log("Cleared stored auth data due to API error");
+          // Instead of clearing stored data, we'll keep using it
+          // This prevents logout on network errors or API issues
+          if (storedUser && storedToken) {
+            console.log("Keeping stored credentials despite API error");
+          } else {
+            console.log("No stored credentials to keep");
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("redirectCount");
+            api.setAuthToken(""); // Clear token in API client
+            setUser(null);
+          }
         }
       } catch (err) {
         // Not authenticated, that's okay

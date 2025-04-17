@@ -33,8 +33,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        {/* Auto-login component for development - only active when env var is set */}
-        {import.meta.env.DEV && <DevAutoLogin />}
+        {/* Auto-login component for development - only active when VITE_DEV_AUTO_LOGIN is true */}
+        {import.meta.env.DEV &&
+          import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && <DevAutoLogin />}
         <DeepLinkHandler />
         <Routes>
           {/* Public routes */}
@@ -43,14 +44,19 @@ function App() {
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
 
-            <Route
-              path="direct-login"
-              element={<Navigate to="/login?mode=direct" replace />}
-            />
-            <Route
-              path="emergency-login"
-              element={<Navigate to="/login?mode=emergency" replace />}
-            />
+            {/* Development-only routes - only active when VITE_DEV_AUTO_LOGIN is true */}
+            {import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && (
+              <>
+                <Route
+                  path="direct-login"
+                  element={<Navigate to="/login?mode=direct" replace />}
+                />
+                <Route
+                  path="emergency-login"
+                  element={<Navigate to="/login?mode=emergency" replace />}
+                />
+              </>
+            )}
             <Route path="shared/:token" element={<RecipeDetail />} />
             <Route path="import" element={<ImportRecipe />} />
           </Route>

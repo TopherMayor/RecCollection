@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec ts-node --project tsconfig.json src/server.ts",
+    "dev": "nodemon --exec ts-node --esm --project tsconfig.json src/server.ts",
     "dev:bun": "bun run --watch src/server.ts",
     "build": "tsc && node esbuild.config.js",
     "build:bun": "bun build src/server.ts --outdir dist",

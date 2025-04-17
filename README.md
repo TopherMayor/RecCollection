@@ -27,13 +27,37 @@ RecCollection is a web application that allows users to create and share recipes
 
 ```
 RecCollection/
-├── docs/                 # Documentation
+├── docs/                 # Project documentation
 ├── app/                  # Application code
 │   ├── backend/          # Backend API and server
-│   └── frontend/         # Frontend React application
-├── scripts/              # Utility scripts
+│   │   ├── src/          # Backend source code
+│   │   │   ├── controllers/  # API controllers
+│   │   │   ├── db/           # Database configuration and schema
+│   │   │   ├── middleware/   # Express middleware
+│   │   │   ├── routes/       # API routes
+│   │   │   ├── services/     # Business logic
+│   │   │   ├── utils/        # Utility functions
+│   │   │   └── server.ts     # Server entry point
+│   │   ├── tests/        # Backend tests
+│   │   └── scripts/      # Backend utility scripts
+│   ├── frontend/         # Frontend React application
+│   │   ├── src/          # Frontend source code
+│   │   │   ├── components/   # Reusable UI components
+│   │   │   ├── pages/        # Page components
+│   │   │   ├── api/          # API client
+│   │   │   ├── hooks/        # Custom React hooks
+│   │   │   ├── types/        # TypeScript type definitions
+│   │   │   ├── utils/        # Utility functions
+│   │   │   └── App.tsx       # Main application component
+│   │   └── tests/        # Frontend tests
+│   └── docs/             # Application-specific documentation
+├── scripts/              # Project-wide utility scripts
+├── cypress/              # End-to-end tests
+├── .github/              # GitHub workflows and configuration
 └── .ai_rules             # AI rules for the project
 ```
+
+Each part of the application (backend and frontend) has its own `package.json` and dependencies, while the root directory contains scripts to manage the entire project.
 
 ## Documentation
 
@@ -170,6 +194,20 @@ The project is currently in active development with the following components imp
 - Responsive design for mobile and desktop
 - Notification system with email and SMS integration
 - Recipe sharing via email, SMS, and shareable links
+
+## Utility Scripts
+
+The project includes utility scripts in the `scripts/` directory to help with development and maintenance tasks:
+
+```bash
+# Check for console.log statements in the codebase
+npm run lint:console
+
+# With Bun
+bun run lint:console:bun
+```
+
+See the [scripts README](scripts/README.md) for more details on available scripts.
 
 ## Testing
 

@@ -13,6 +13,8 @@ interface Recipe {
   servingSize?: number;
   difficultyLevel?: string;
   imageUrl?: string;
+  thumbnailUrl?: string;
+  thumbnailPath?: string;
   sourceUrl?: string;
   sourceType?: string;
   isPrivate?: boolean;
@@ -67,13 +69,11 @@ function Home() {
             setRecipes([]);
             setFilteredRecipes([]);
           } else {
-            // Add a placeholder image for recipes without images
-            const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
-              ...recipe,
-              imageUrl:
-                recipe.imageUrl ||
-                `https://picsum.photos/seed/${recipe.id}/400/300`,
-            }));
+            // Process recipes to ensure proper image handling
+            const recipesWithImages = data.recipes.map((recipe: Recipe) => {
+              // Don't modify the image URLs if they exist
+              return recipe;
+            });
             setRecipes(recipesWithImages);
             setFilteredRecipes(recipesWithImages);
           }
@@ -91,13 +91,11 @@ function Home() {
 
           if (data && data.recipes) {
             console.log("Setting recipes from API client");
-            // Add a placeholder image for recipes without images
-            const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
-              ...recipe,
-              imageUrl:
-                recipe.imageUrl ||
-                `https://picsum.photos/seed/${recipe.id}/400/300`,
-            }));
+            // Process recipes to ensure proper image handling
+            const recipesWithImages = data.recipes.map((recipe: Recipe) => {
+              // Don't modify the image URLs if they exist
+              return recipe;
+            });
             setRecipes(recipesWithImages);
             setFilteredRecipes(recipesWithImages);
           } else {
@@ -131,13 +129,11 @@ function Home() {
 
         if (data && data.recipes) {
           console.log("Setting recipes from followed users");
-          // Add a placeholder image for recipes without images
-          const recipesWithImages = data.recipes.map((recipe: Recipe) => ({
-            ...recipe,
-            imageUrl:
-              recipe.imageUrl ||
-              `https://picsum.photos/seed/${recipe.id}/400/300`,
-          }));
+          // Process recipes to ensure proper image handling
+          const recipesWithImages = data.recipes.map((recipe: Recipe) => {
+            // Don't modify the image URLs if they exist
+            return recipe;
+          });
           setRecipes(recipesWithImages);
           setFilteredRecipes(recipesWithImages);
         } else {
@@ -334,9 +330,19 @@ function Home() {
           >
             <div className="relative">
               <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                {recipe.imageUrl ? (
+                {recipe.imageUrl ||
+                recipe.thumbnailUrl ||
+                recipe.thumbnailPath ? (
                   <img
-                    src={recipe.imageUrl}
+                    src={
+                      recipe.imageUrl ||
+                      recipe.thumbnailUrl ||
+                      (recipe.thumbnailPath
+                        ? recipe.thumbnailPath.startsWith("http")
+                          ? recipe.thumbnailPath
+                          : recipe.thumbnailPath
+                        : undefined)
+                    }
                     alt={recipe.title}
                     className="w-full h-48 object-cover"
                     onError={(e) => {

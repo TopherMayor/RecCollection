@@ -48,9 +48,9 @@ export default function Login() {
       setError(null);
       setSuccess(null);
 
-      // Use credentials from environment variables
+      // Use credentials from environment variables or fallback to test user
       const devEmail =
-        import.meta.env.VITE_DEV_LOGIN_EMAIL || "test@example.com";
+        import.meta.env.VITE_DEV_LOGIN_EMAIL || "john@example.com";
       const devPassword =
         import.meta.env.VITE_DEV_LOGIN_PASSWORD || "password123";
 
@@ -83,7 +83,7 @@ export default function Login() {
       localStorage.removeItem("redirectCount");
 
       // Make a direct fetch request to the login endpoint
-      const response = await fetch("http://localhost:3001/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -121,8 +121,11 @@ export default function Login() {
     }
   }, []);
 
-  // Add useEffect to handle auto-login based on URL parameters
+  // Add useEffect to handle auto-login based on URL parameters - only when VITE_DEV_AUTO_LOGIN is true
   useEffect(() => {
+    // Only process auto-login modes if VITE_DEV_AUTO_LOGIN is true
+    if (import.meta.env.VITE_DEV_AUTO_LOGIN !== "true") return;
+
     const mode = new URLSearchParams(window.location.search).get("mode");
     if (mode === "direct") {
       handleDirectLogin();
@@ -269,47 +272,52 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Developer options toggle */}
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => setShowDevOptions(!showDevOptions)}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                {showDevOptions
-                  ? "Hide developer options"
-                  : "Show developer options"}
-              </button>
-            </div>
-
-            {/* Developer login options */}
-            {showDevOptions && (
-              <div className="mt-4 space-y-4 border-t pt-4">
-                <h3 className="text-sm font-medium text-gray-700">
-                  Developer Options
-                </h3>
-                <div className="flex space-x-4">
+            {/* Developer options toggle - only shown when VITE_DEV_AUTO_LOGIN is true */}
+            {import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && (
+              <>
+                <div className="mt-4 text-center">
                   <button
                     type="button"
-                    onClick={handleDirectLogin}
-                    disabled={loading}
-                    className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => setShowDevOptions(!showDevOptions)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
                   >
-                    Quick Login
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleEmergencyLogin}
-                    disabled={loading}
-                    className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Emergency Login
+                    {showDevOptions
+                      ? "Hide developer options"
+                      : "Show developer options"}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">
-                  These options are for development and testing purposes only.
-                </p>
-              </div>
+
+                {/* Developer login options */}
+                {showDevOptions && (
+                  <div className="mt-4 space-y-4 border-t pt-4">
+                    <h3 className="text-sm font-medium text-gray-700">
+                      Developer Options
+                    </h3>
+                    <div className="flex space-x-4">
+                      <button
+                        type="button"
+                        onClick={handleDirectLogin}
+                        disabled={loading}
+                        className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Quick Login
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleEmergencyLogin}
+                        disabled={loading}
+                        className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Emergency Login
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      These options are for development and testing purposes
+                      only.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </form>
         </div>

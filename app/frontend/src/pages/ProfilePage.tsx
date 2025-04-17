@@ -23,6 +23,8 @@ interface Recipe {
   title: string;
   description?: string;
   imageUrl?: string;
+  thumbnailUrl?: string;
+  thumbnailPath?: string;
   createdAt: string;
   user?: {
     username: string;
@@ -236,9 +238,19 @@ export default function ProfilePage() {
               >
                 <div className="relative">
                   <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    {recipe.imageUrl ? (
+                    {recipe.imageUrl ||
+                    recipe.thumbnailUrl ||
+                    recipe.thumbnailPath ? (
                       <img
-                        src={recipe.imageUrl}
+                        src={
+                          recipe.imageUrl ||
+                          recipe.thumbnailUrl ||
+                          (recipe.thumbnailPath
+                            ? recipe.thumbnailPath.startsWith("http")
+                              ? recipe.thumbnailPath
+                              : recipe.thumbnailPath
+                            : undefined)
+                        }
                         alt={recipe.title}
                         className="w-full h-48 object-cover"
                         onError={(e) => {
