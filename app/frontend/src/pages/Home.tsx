@@ -240,10 +240,10 @@ function Home() {
             </div>
           )}
 
-          <div className="flex flex-wrap space-x-2 bg-gray-100 p-1 rounded-lg self-end sm:self-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-gray-100 p-1 rounded-lg self-end sm:self-auto w-full sm:w-auto">
             <button
               onClick={() => setFilterMode("all")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
                 filterMode === "all"
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-gray-200"
@@ -253,7 +253,7 @@ function Home() {
             </button>
             <button
               onClick={() => setFilterMode("mine")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
                 filterMode === "mine"
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-gray-200"
@@ -263,7 +263,7 @@ function Home() {
             </button>
             <button
               onClick={() => setFilterMode("following")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
                 filterMode === "following"
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-gray-200"
@@ -273,7 +273,7 @@ function Home() {
             </button>
             <button
               onClick={() => setFilterMode("others")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
                 filterMode === "others"
                   ? "bg-blue-600 text-white"
                   : "text-gray-700 hover:bg-gray-200"
