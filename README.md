@@ -261,11 +261,26 @@ npm run e2e:open:bun      # Start dev server and open Cypress with Bun
 
 ## Development Workflow
 
-1. Create a new branch for your feature or bug fix
-2. Make your changes
-3. Write tests for your changes (unit and E2E)
-4. Run the tests to ensure they pass
-5. Submit a pull request
+The project follows a structured branch workflow:
+
+- **main**: Production-ready code, protected branch
+- **dev**: Development code that has passed review
+- **test**: Testing branch for new contributions
+
+For detailed information about the branch structure and workflow, see the [Branch Workflow Documentation](docs/branch_workflow.md).
+
+### Contributing to the Project
+
+1. Fork the repository and clone it locally
+2. Create a feature branch from the `test` branch
+3. Make your changes
+4. Write tests for your changes (unit and E2E)
+5. Run the tests to ensure they pass
+6. Push your changes to your fork
+7. Submit a pull request to the `test` branch
+8. After review, your changes will be merged into `test`
+9. Once tested, changes in `test` will be merged into `dev`
+10. Periodically, `dev` will be merged into `main` by the repository owner
 
 ## Contributing
 
