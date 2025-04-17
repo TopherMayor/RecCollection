@@ -13,7 +13,7 @@ RecCollection is a web application that allows users to create and share recipes
 
 ## Tech Stack
 
-- **Runtime Environment**: Bun
+- **Runtime Environment**: Node.js/npm or Bun (both supported)
 - **Backend Framework**: Hono
 - **Database ORM**: Drizzle
 - **Database**: PostgreSQL
@@ -60,8 +60,8 @@ Detailed documentation is available in the `docs` directory:
 
 ### Prerequisites
 
-- Bun (v1.0.0 or later)
-- Node.js (v18.0.0 or later)
+- Node.js (v18.0.0 or later) with npm
+- Bun (v1.0.0 or later) - optional, project supports both npm and Bun
 - PostgreSQL (v14.0 or later)
 - Git
 
@@ -74,17 +74,78 @@ Detailed documentation is available in the `docs` directory:
    cd RecCollection
    ```
 
-2. Follow the setup instructions in [Project Setup](docs/project_setup.md).
+2. Install dependencies:
 
-3. Start the development servers:
+   With npm:
 
    ```bash
-   bun run dev
+   npm install
+   cd app/frontend && npm install
+   cd ../backend && npm install
    ```
 
-4. Access the application:
+   With Bun:
+
+   ```bash
+   bun install
+   cd app/frontend && bun install
+   cd ../backend && bun install
+   ```
+
+3. Set up environment variables:
+
+   ```bash
+   cp app/backend/.env.example app/backend/.env
+   cp app/frontend/.env.example app/frontend/.env.development
+   ```
+
+   Edit the `.env` files with your database credentials and other settings.
+
+4. Set up the database:
+
+   With npm:
+
+   ```bash
+   cd app/backend && npm run db:setup
+   ```
+
+   With Bun:
+
+   ```bash
+   cd app/backend && bun run db:setup:bun
+   ```
+
+5. Start the development servers:
+
+   With npm:
+
+   ```bash
+   npm run dev:all
+   ```
+
+   With Bun:
+
+   ```bash
+   npm run dev:all:bun
+   ```
+
+   Or start frontend and backend separately:
+
+   Frontend (npm):
+
+   ```bash
+   npm run dev
+   ```
+
+   Backend (npm):
+
+   ```bash
+   npm run dev:backend
+   ```
+
+6. Access the application:
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000/api
+   - Backend API: http://localhost:3001/api
 
 ## Current State
 
@@ -118,21 +179,46 @@ The project uses a comprehensive testing strategy:
 
 Unit tests are written using Vitest and React Testing Library. Run the tests with:
 
+With npm:
+
 ```bash
-bun run test        # Run all tests
-bun run test:watch  # Run tests in watch mode
-bun run test:coverage # Run tests with coverage report
+npm run test           # Run all tests
+npm run test:watch     # Run tests in watch mode
+npm run test:coverage  # Run tests with coverage report
+npm run test:backend   # Run backend tests
+npm run test:all       # Run all tests (frontend and backend)
+```
+
+With Bun:
+
+```bash
+npm run test:bun           # Run frontend tests with Bun
+npm run test:watch:bun     # Run tests in watch mode with Bun
+npm run test:coverage:bun  # Run tests with coverage report with Bun
+npm run test:backend:bun   # Run backend tests with Bun
+npm run test:all:bun       # Run all tests with Bun
 ```
 
 ### End-to-End Testing
 
 End-to-end tests are written using Cypress. Run the tests with:
 
+With npm:
+
 ```bash
-bun run cypress:open  # Open Cypress Test Runner
-bun run cypress:run   # Run Cypress tests headlessly
-bun run e2e           # Start dev server and run tests
-bun run e2e:open      # Start dev server and open Cypress
+npm run cypress:open  # Open Cypress Test Runner
+npm run cypress:run   # Run Cypress tests headlessly
+npm run e2e           # Start dev server and run tests
+npm run e2e:open      # Start dev server and open Cypress
+```
+
+With Bun:
+
+```bash
+npm run cypress:open:bun  # Open Cypress Test Runner with Bun
+npm run cypress:run:bun   # Run Cypress tests headlessly with Bun
+npm run e2e:bun           # Start dev server and run tests with Bun
+npm run e2e:open:bun      # Start dev server and open Cypress with Bun
 ```
 
 ## Development Workflow

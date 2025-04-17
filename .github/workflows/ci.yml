@@ -9,58 +9,147 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-manager: ['npm', 'bun']
     steps:
       - uses: actions/checkout@v3
-      
+
+      - name: Setup Node.js
+        if: matrix.package-manager == 'npm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Setup Bun
+        if: matrix.package-manager == 'bun'
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Install dependencies
+
+      - name: Install dependencies (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/frontend && npm install
+
+      - name: Install dependencies (bun)
+        if: matrix.package-manager == 'bun'
         run: cd app/frontend && bun install
-      
-      - name: Lint
+
+      - name: Lint (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/frontend && npm run lint
+
+      - name: Lint (bun)
+        if: matrix.package-manager == 'bun'
         run: cd app/frontend && bun run lint
-  
+
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-manager: ['npm', 'bun']
     steps:
       - uses: actions/checkout@v3
-      
+
+      - name: Setup Node.js
+        if: matrix.package-manager == 'npm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Setup Bun
+        if: matrix.package-manager == 'bun'
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Install dependencies
-        run: cd app/frontend && bun install
-      
-      - name: Run unit tests
-        run: cd app/frontend && bun run test
-      
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: app/frontend/coverage/
-  
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      
-      - name: Install dependencies
+
+      - name: Install dependencies (npm)
+        if: matrix.package-manager == 'npm'
+        run: |
+          npm install
+          cd app/frontend && npm install
+          cd ../backend && npm install
+
+      - name: Install dependencies (bun)
+        if: matrix.package-manager == 'bun'
         run: |
           bun install
           cd app/frontend && bun install
-      
-      - name: Cypress run
+          cd ../backend && bun install
+
+      - name: Run frontend tests (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/frontend && npm run test
+
+      - name: Run frontend tests (bun)
+        if: matrix.package-manager == 'bun'
+        run: cd app/frontend && bun run test
+
+      - name: Run backend tests (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/backend && npm run test
+
+      - name: Run backend tests (bun)
+        if: matrix.package-manager == 'bun'
+        run: cd app/backend && bun run test:bun
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-${{ matrix.package-manager }}
+          path: |
+            app/frontend/coverage/
+            app/backend/coverage/
+
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-manager: ['npm', 'bun']
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        if: matrix.package-manager == 'npm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Bun
+        if: matrix.package-manager == 'bun'
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (npm)
+        if: matrix.package-manager == 'npm'
+        run: |
+          npm install
+          cd app/frontend && npm install
+          cd ../backend && npm install
+
+      - name: Install dependencies (bun)
+        if: matrix.package-manager == 'bun'
+        run: |
+          bun install
+          cd app/frontend && bun install
+          cd ../backend && bun install
+
+      - name: Cypress run (npm)
+        if: matrix.package-manager == 'npm'
+        uses: cypress-io/github-action@v5
+        with:
+          build: cd app/frontend && npm run build
+          start: cd app/frontend && npm run preview
+          wait-on: 'http://localhost:4173'
+          browser: chrome
+          working-directory: .
+
+      - name: Cypress run (bun)
+        if: matrix.package-manager == 'bun'
         uses: cypress-io/github-action@v5
         with:
           build: cd app/frontend && bun run build
@@ -68,40 +157,77 @@ jobs:
           wait-on: 'http://localhost:4173'
           browser: chrome
           working-directory: .
-      
+
       - name: Upload Cypress screenshots
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: cypress-screenshots
+          name: cypress-screenshots-${{ matrix.package-manager }}
           path: cypress/screenshots
-      
+
       - name: Upload Cypress videos
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: cypress-videos
+          name: cypress-videos-${{ matrix.package-manager }}
           path: cypress/videos
-  
+
   build:
     runs-on: ubuntu-latest
     needs: [lint, test, e2e]
+    strategy:
+      matrix:
+        package-manager: ['npm', 'bun']
     steps:
       - uses: actions/checkout@v3
-      
+
+      - name: Setup Node.js
+        if: matrix.package-manager == 'npm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Setup Bun
+        if: matrix.package-manager == 'bun'
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Install dependencies
-        run: cd app/frontend && bun install
-      
-      - name: Build
+
+      - name: Install dependencies (npm)
+        if: matrix.package-manager == 'npm'
+        run: |
+          npm install
+          cd app/frontend && npm install
+          cd ../backend && npm install
+
+      - name: Install dependencies (bun)
+        if: matrix.package-manager == 'bun'
+        run: |
+          bun install
+          cd app/frontend && bun install
+          cd ../backend && bun install
+
+      - name: Build frontend (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/frontend && npm run build
+
+      - name: Build frontend (bun)
+        if: matrix.package-manager == 'bun'
         run: cd app/frontend && bun run build
-      
+
+      - name: Build backend (npm)
+        if: matrix.package-manager == 'npm'
+        run: cd app/backend && npm run build
+
+      - name: Build backend (bun)
+        if: matrix.package-manager == 'bun'
+        run: cd app/backend && bun run build:bun
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build
-          path: app/frontend/dist/
+          name: build-${{ matrix.package-manager }}
+          path: |
+            app/frontend/dist/
+            app/backend/dist/
