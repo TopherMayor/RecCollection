@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { NotificationController } from "../controllers/notification.controller";
 import { authenticate } from "../middleware/auth";
+import { rateLimit, readRateLimit } from "../middleware/rate-limit";
 
 // Create a new router
 const router = new Hono();
@@ -11,25 +12,40 @@ const notificationController = new NotificationController();
 // All routes require authentication
 router.use("*", authenticate);
 
-// Get user's notifications
-router.get("/", (c) => notificationController.getUserNotifications(c));
+// Get user's notifications - apply read rate limit
+router.get("/", readRateLimit, (c) =>
+  notificationController.getUserNotifications(c)
+);
 
-// Get unread notification count
-router.get("/unread-count", (c) => notificationController.getUnreadNotificationCount(c));
+// Get unread notification count - apply read rate limit but with higher limits
+// This endpoint is called frequently from the frontend
+router.get("/unread-count", readRateLimit, (c) =>
+  notificationController.getUnreadNotificationCount(c)
+);
 
-// Mark notification as read
-router.patch("/:id/read", (c) => notificationController.markNotificationAsRead(c));
+// Mark notification as read - apply standard rate limit
+router.patch("/:id/read", rateLimit, (c) =>
+  notificationController.markNotificationAsRead(c)
+);
 
-// Mark all notifications as read
-router.patch("/read-all", (c) => notificationController.markAllNotificationsAsRead(c));
+// Mark all notifications as read - apply standard rate limit
+router.patch("/read-all", rateLimit, (c) =>
+  notificationController.markAllNotificationsAsRead(c)
+);
 
-// Delete notification
-router.delete("/:id", (c) => notificationController.deleteNotification(c));
+// Delete notification - apply standard rate limit
+router.delete("/:id", rateLimit, (c) =>
+  notificationController.deleteNotification(c)
+);
 
-// Get notification preferences
-router.get("/preferences", (c) => notificationController.getNotificationPreferences(c));
+// Get notification preferences - apply read rate limit
+router.get("/preferences", readRateLimit, (c) =>
+  notificationController.getNotificationPreferences(c)
+);
 
-// Update notification preferences
-router.patch("/preferences", (c) => notificationController.updateNotificationPreferences(c));
+// Update notification preferences - apply standard rate limit
+router.patch("/preferences", rateLimit, (c) =>
+  notificationController.updateNotificationPreferences(c)
+);
 
 export { router as notificationRoutes };

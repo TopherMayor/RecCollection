@@ -3,7 +3,17 @@ import { useAuth } from "../hooks/useAuth";
 import { api } from "../api";
 import NotificationList from "./NotificationList";
 
-export default function NotificationBell() {
+// Create a global interval ID to ensure only one polling interval exists
+let globalIntervalId: number | null = null;
+
+// Track if we're already fetching to prevent concurrent requests
+let isFetching = false;
+
+export default function NotificationBell({
+  isMobile = false,
+}: {
+  isMobile?: boolean;
+}) {
   const { isAuthenticated } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -12,17 +22,21 @@ export default function NotificationBell() {
 
   // Fetch unread notification count
   const fetchUnreadCount = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isFetching) return;
 
     try {
+      isFetching = true;
+      console.log(`Fetching unread count (${isMobile ? "mobile" : "desktop"})`);
       const response = await api.notifications.getUnreadCount();
       if (response.success) {
         setUnreadCount(response.count);
       }
     } catch (error) {
       console.error("Error fetching unread notification count:", error);
+    } finally {
+      isFetching = false;
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isMobile]);
 
   // Toggle notifications panel
   const toggleNotifications = () => {
@@ -66,14 +80,33 @@ export default function NotificationBell() {
   // Fetch unread count on mount and when authenticated status changes
   useEffect(() => {
     if (isAuthenticated) {
-      fetchUnreadCount();
+      // Only set up polling in the desktop version to avoid duplicate intervals
+      if (!isMobile) {
+        fetchUnreadCount();
 
-      // Set up polling for new notifications (every 30 seconds)
-      const interval = setInterval(fetchUnreadCount, 30000);
+        // Clear any existing interval before setting a new one
+        if (globalIntervalId !== null) {
+          console.log("Clearing existing notification polling interval");
+          clearInterval(globalIntervalId);
+        }
 
-      return () => clearInterval(interval);
+        // Set up polling for new notifications (every 60 seconds)
+        console.log("Setting up new notification polling interval");
+        globalIntervalId = window.setInterval(fetchUnreadCount, 60000);
+
+        return () => {
+          if (globalIntervalId !== null) {
+            console.log("Cleaning up notification polling interval");
+            clearInterval(globalIntervalId);
+            globalIntervalId = null;
+          }
+        };
+      } else {
+        // For mobile, just fetch once but don't set up polling
+        fetchUnreadCount();
+      }
     }
-  }, [isAuthenticated, fetchUnreadCount]);
+  }, [isAuthenticated, fetchUnreadCount, isMobile]);
 
   // Don't render if not authenticated
   if (!isAuthenticated) {

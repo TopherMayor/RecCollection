@@ -3,51 +3,63 @@
 ## Completed Tasks
 
 ### Frontend
+
 - [x] Consolidated RecipeCard component to avoid duplication
 - [x] Fixed Collections page API client usage
 - [x] Updated API documentation to include Collections endpoints
 - [x] Created frontend API client documentation
 - [x] Fixed image loading in RecipeCard component
+- [x] Implemented responsive design for all pages
+- [x] Completed search functionality with filters
+- [x] Implemented follow/unfollow functionality
+- [x] Added show password toggle in authentication forms
+- [x] Implemented notifications system
+- [x] Optimized notification system to reduce API calls
 
 ### Backend
+
 - [x] Implemented Collections API endpoints
 - [x] Added proper error handling in API responses
+- [x] Implemented AI-powered recipe import from social media
+- [x] Added email/texting integration for sharing recipes
+- [x] Implemented direct import from YouTube, TikTok, and Instagram
+- [x] Added backend caching for notification counts
+- [x] Implemented rate limiting for notification endpoints
 
 ## In Progress
 
 ### Frontend
-- [ ] Implement responsive design for all pages
-- [ ] Complete search functionality with filters
-- [ ] Implement follow/unfollow functionality
-- [ ] Add show password toggle in authentication forms
-- [ ] Implement notifications system
+
+- [ ] Implement recipe collections/folders feature UI
 
 ### Backend
-- [ ] Implement AI-powered recipe import from social media
-- [ ] Add email/texting integration for sharing recipes
-- [ ] Implement direct import from YouTube, TikTok, and Instagram
+
+- [ ] Implement recipe collections/folders feature API
 
 ## Backlog
 
 ### Frontend
-- [ ] Refactor code to use more reusable components
-- [ ] Limit files to around 500 lines
-- [ ] Organize interfaces/classes/components in dedicated folders
-- [ ] Implement multi-select delete functionality for recipes
+
+- [ ] Implement dark mode support
+- [ ] Add recipe recommendations UI
 
 ### Backend
-- [ ] Implement screenshot capture for recipe imports
-- [ ] Add thumbnail selection functionality
-- [ ] Improve AI service error handling
+
+- [ ] Implement recipe recommendation engine
+- [ ] Add WebSocket support for real-time notifications
+- [ ] Implement distributed caching for multi-instance deployment
 
 ## Known Issues
+
 - [x] Collections page API error: "TypeError: api.get is not a function" - FIXED
-- [ ] Email service verification failing with DNS exception
-- [ ] SMS service not configured
+- [x] Email service verification failing with DNS exception - FIXED
+- [x] SMS service not configured - FIXED
+- [ ] Backend server has some compatibility issues when running with Node.js/npm - currently works best with Bun
 
 ## Next Steps
-1. Complete responsive design implementation
-2. Refactor codebase for better organization
-3. Implement remaining social features (follow/unfollow)
-4. Add comprehensive testing
-5. Prepare for production deployment
+
+1. Implement recipe collections/folders feature
+2. Add comprehensive testing
+3. Prepare for production deployment
+4. Consider WebSockets for real-time notifications
+5. Implement recipe recommendations
