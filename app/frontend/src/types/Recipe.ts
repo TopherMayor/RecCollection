@@ -36,10 +36,13 @@ export interface Recipe {
   isPrivate: boolean;
   userId?: number;
   user?: {
+    id?: number;
     username: string;
     displayName?: string;
     avatarUrl?: string;
   };
+  likesCount?: number;
+  commentsCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -79,10 +82,13 @@ export interface RecipeListItem {
   sourceType?: string;
   isPrivate?: boolean;
   user?: {
+    id?: number;
     username: string;
     displayName?: string;
     avatarUrl?: string;
   };
+  likesCount?: number;
+  commentsCount?: number;
   createdAt: string;
   updatedAt?: string;
 }

@@ -3,8 +3,12 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../api";
 import { Button } from "../components/ui/buttons/Button";
-import { ArrowLeftIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import RecipeCard from "../components/RecipeCard";
+import {
+  ArrowLeftIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import { RecipeCard } from "../components/recipe";
 
 interface Collection {
   id: number;
@@ -31,7 +35,7 @@ export default function CollectionDetails() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   const [collection, setCollection] = useState<Collection | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,12 +55,12 @@ export default function CollectionDetails() {
         setError(null);
 
         const response = await api.get(`/collections/${id}`);
-        
+
         if (response.success && response.collection) {
           setCollection(response.collection);
           setEditName(response.collection.name);
           setEditDescription(response.collection.description || "");
-          
+
           if (response.recipes) {
             setRecipes(response.recipes);
           }
@@ -77,7 +81,7 @@ export default function CollectionDetails() {
   // Handle updating collection
   const handleUpdateCollection = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!editName.trim()) {
       setError("Collection name is required");
       return;
@@ -108,7 +112,11 @@ export default function CollectionDetails() {
 
   // Handle deleting collection
   const handleDeleteCollection = async () => {
-    if (!confirm("Are you sure you want to delete this collection? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this collection? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -133,11 +141,13 @@ export default function CollectionDetails() {
     }
 
     try {
-      const response = await api.delete(`/collections/${id}/recipes/${recipeId}`);
+      const response = await api.delete(
+        `/collections/${id}/recipes/${recipeId}`
+      );
 
       if (response.success) {
         // Remove the recipe from the list
-        setRecipes(recipes.filter(recipe => recipe.id !== recipeId));
+        setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
       } else {
         setError("Failed to remove recipe from collection");
       }
@@ -202,7 +212,10 @@ export default function CollectionDetails() {
               {isEditing ? (
                 <form onSubmit={handleUpdateCollection}>
                   <div className="mb-4">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Name
                     </label>
                     <input
@@ -216,7 +229,10 @@ export default function CollectionDetails() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Description (optional)
                     </label>
                     <textarea
@@ -249,12 +265,17 @@ export default function CollectionDetails() {
                 <div>
                   <div className="flex justify-between items-start">
                     <div>
-                      <h1 className="text-2xl font-bold text-gray-900">{collection.name}</h1>
+                      <h1 className="text-2xl font-bold text-gray-900">
+                        {collection.name}
+                      </h1>
                       {collection.description && (
-                        <p className="mt-2 text-gray-600">{collection.description}</p>
+                        <p className="mt-2 text-gray-600">
+                          {collection.description}
+                        </p>
                       )}
                       <p className="mt-2 text-sm text-gray-500">
-                        Created on {new Date(collection.createdAt).toLocaleDateString()}
+                        Created on{" "}
+                        {new Date(collection.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex space-x-2">
@@ -279,12 +300,16 @@ export default function CollectionDetails() {
             </div>
 
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Recipes in this Collection</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Recipes in this Collection
+              </h2>
             </div>
 
             {recipes.length === 0 ? (
               <div className="text-center py-12 bg-white shadow rounded-lg">
-                <h3 className="mt-2 text-lg font-medium text-gray-900">No recipes in this collection</h3>
+                <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  No recipes in this collection
+                </h3>
                 <p className="mt-1 text-sm text-gray-500">
                   Add recipes to this collection from the recipe details page.
                 </p>
@@ -316,9 +341,12 @@ export default function CollectionDetails() {
           </>
         ) : (
           <div className="text-center py-12 bg-white shadow rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900">Collection not found</h3>
+            <h3 className="text-lg font-medium text-gray-900">
+              Collection not found
+            </h3>
             <p className="mt-1 text-sm text-gray-500">
-              The collection you're looking for doesn't exist or you don't have permission to view it.
+              The collection you're looking for doesn't exist or you don't have
+              permission to view it.
             </p>
             <div className="mt-6">
               <Link
