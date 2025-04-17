@@ -84,10 +84,13 @@ All code should be documented according to these standards:
 
 This section provides a snapshot of the current state of development. It should be updated with each session.
 
-### Last Updated: May 1, 2024
+### Last Updated: May 15, 2024
 
 #### Recently Completed Tasks
 
+- Added npm compatibility to the project (TASK-021)
+- Updated all documentation to reflect npm/Bun compatibility
+- Fixed backend server port configuration to consistently use port 3001
 - Created a comprehensive UI component library for consistent styling and improved maintainability
 - Refactored RecipeForm, RecipeCard, and SearchResults components to use the new UI components
 - Enhanced responsive design across all refactored components
@@ -100,7 +103,6 @@ This section provides a snapshot of the current state of development. It should 
 - Added recipe sharing functionality via email, SMS, and shareable links
 - Added deep linking support for social media imports
 - Created comprehensive documentation for UI component library
-- Updated all documentation to reflect current project state
 
 #### In Progress Tasks
 
@@ -114,7 +116,7 @@ This section provides a snapshot of the current state of development. It should 
 
 #### Known Issues
 
-- None currently identified
+- Backend server has some compatibility issues when running with Node.js/npm - currently works best with Bun
 
 ## Project Roadmap
 
@@ -296,6 +298,15 @@ This section provides a snapshot of the current state of development. It should 
 - **Updated**: May 1, 2024
 - **Dependencies**: TASK-019
 - **Notes**: Completed refactoring of all components to use the new UI component library
+
+### TASK-021: npm/Bun Compatibility
+
+- **State**: DONE
+- **Priority**: HIGH
+- **Description**: Make the project compatible with both npm and Bun package managers
+- **Created**: May 15, 2024
+- **Updated**: May 15, 2024
+- **Notes**: Updated package.json scripts, configuration files, and documentation to support both npm and Bun. Backend works best with Bun due to TypeScript compatibility issues with Node.js.
 
 ### TASK-013: Recipe Recommendations
 

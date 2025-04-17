@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
-import { serveStatic } from "hono/bun";
+import { serveStatic } from "@hono/node-server/serve-static";
 import path from "path";
 import { errorHandler } from "./middleware/error";
 import { authRoutes } from "./routes/auth";

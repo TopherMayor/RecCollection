@@ -24,13 +24,13 @@ graph TD
 - **State Management**: React Router v7 loaders
 - **Component Library**: shadcn/ui
 - **Styling**: Tailwind CSS
-- **Build Tool**: Bun
+- **Build Tool**: npm or Bun (both supported)
 - **Example Component**: `app/frontend/src/components/recipe/RecipeForm.tsx`
 
 ### Backend Architecture
 
 - **Framework**: Hono
-- **Runtime**: Bun
+- **Runtime**: Node.js or Bun (both supported)
 - **API Style**: RESTful
 - **Authentication**: JWT-based authentication
 - **Database Access**: Drizzle ORM

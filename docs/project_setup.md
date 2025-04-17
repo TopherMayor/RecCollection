@@ -4,14 +4,15 @@
 
 Before setting up the RecCollection project, ensure you have the following installed:
 
-- **Bun**: JavaScript runtime and package manager (v1.0.0 or later)
-- **Node.js**: JavaScript runtime (v18.0.0 or later)
+- **Node.js**: JavaScript runtime and package manager (v18.0.0 or later)
+- **Bun**: JavaScript runtime and package manager (v1.0.0 or later) - optional, project supports both npm and Bun
 - **PostgreSQL**: Database (v14.0 or later)
 - **Git**: Version control system
 
 ## Repository Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/RecCollection.git
    cd RecCollection
@@ -27,14 +28,17 @@ Before setting up the RecCollection project, ensure you have the following insta
 ### Initialize Backend Project
 
 1. Navigate to the backend directory:
+
    ```bash
    cd app/backend
    ```
 
 2. Initialize a new Bun project:
+
    ```bash
    bun init
    ```
+
    - Answer the prompts to set up the project
    - Set the package name to `reccollection-backend`
    - Choose TypeScript as the language
@@ -51,11 +55,13 @@ Before setting up the RecCollection project, ensure you have the following insta
 ### Configure Database
 
 1. Create a PostgreSQL database:
+
    ```bash
    createdb reccollection
    ```
 
 2. Create a `.env` file in the backend directory:
+
    ```
    DATABASE_URL=postgres://username:password@localhost:5432/reccollection
    JWT_SECRET=your_jwt_secret_key
@@ -63,6 +69,7 @@ Before setting up the RecCollection project, ensure you have the following insta
    ```
 
 3. Set up Drizzle ORM:
+
    ```bash
    mkdir -p src/db
    ```
@@ -70,10 +77,11 @@ Before setting up the RecCollection project, ensure you have the following insta
 4. Create a database schema file at `src/db/schema.ts` based on the schema defined in the database documentation.
 
 5. Create a Drizzle configuration file:
+
    ```bash
    # drizzle.config.ts
    import type { Config } from 'drizzle-kit';
-   
+
    export default {
      schema: './src/db/schema.ts',
      out: './src/db/migrations',
@@ -85,17 +93,19 @@ Before setting up the RecCollection project, ensure you have the following insta
    ```
 
 6. Generate migrations:
+
    ```bash
    bun drizzle-kit generate:pg
    ```
 
 7. Create a database client file at `src/db/index.ts`:
+
    ```typescript
-   import { drizzle } from 'drizzle-orm/postgres-js';
-   import postgres from 'postgres';
-   import * as schema from './schema';
-   
-   const connectionString = process.env.DATABASE_URL || '';
+   import { drizzle } from "drizzle-orm/postgres-js";
+   import postgres from "postgres";
+   import * as schema from "./schema";
+
+   const connectionString = process.env.DATABASE_URL || "";
    const client = postgres(connectionString);
    export const db = drizzle(client, { schema });
    ```
@@ -103,48 +113,54 @@ Before setting up the RecCollection project, ensure you have the following insta
 ### Set Up API Structure
 
 1. Create the basic directory structure:
+
    ```bash
    mkdir -p src/routes src/controllers src/services src/middleware src/utils
    ```
 
 2. Create a main application file at `src/index.ts`:
+
    ```typescript
-   import { Hono } from 'hono';
-   import { logger } from 'hono/logger';
-   import { cors } from 'hono/cors';
-   import { secureHeaders } from 'hono/secure-headers';
-   import { authRoutes } from './routes/auth';
-   import { recipeRoutes } from './routes/recipes';
-   
+   import { Hono } from "hono";
+   import { logger } from "hono/logger";
+   import { cors } from "hono/cors";
+   import { secureHeaders } from "hono/secure-headers";
+   import { authRoutes } from "./routes/auth";
+   import { recipeRoutes } from "./routes/recipes";
+
    const app = new Hono();
-   
+
    // Middleware
-   app.use('*', logger());
-   app.use('*', cors({
-     origin: ['http://localhost:5173'],
-     credentials: true,
-   }));
-   app.use('*', secureHeaders());
-   
+   app.use("*", logger());
+   app.use(
+     "*",
+     cors({
+       origin: ["http://localhost:5173"],
+       credentials: true,
+     })
+   );
+   app.use("*", secureHeaders());
+
    // Routes
-   app.route('/api/auth', authRoutes);
-   app.route('/api/recipes', recipeRoutes);
-   
+   app.route("/api/auth", authRoutes);
+   app.route("/api/recipes", recipeRoutes);
+
    // Health check
-   app.get('/', (c) => c.json({ status: 'ok' }));
-   
+   app.get("/", (c) => c.json({ status: "ok" }));
+
    export default app;
    ```
 
 3. Create a server file at `src/server.ts`:
+
    ```typescript
-   import { serve } from '@hono/node-server';
-   import app from './index';
-   
-   const port = parseInt(process.env.PORT || '3000', 10);
-   
+   import { serve } from "@hono/node-server";
+   import app from "./index";
+
+   const port = parseInt(process.env.PORT || "3000", 10);
+
    console.log(`Server is running on port ${port}`);
-   
+
    serve({
      fetch: app.fetch,
      port,
@@ -158,12 +174,18 @@ Add the following scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "dev": "bun run --watch src/server.ts",
-    "build": "bun build src/server.ts --outdir dist",
-    "start": "bun run dist/server.js",
-    "db:migrate": "bun drizzle-kit migrate:pg",
-    "db:studio": "bun drizzle-kit studio",
-    "test": "bun test"
+    "dev": "nodemon --exec ts-node --project tsconfig.json src/server.ts",
+    "dev:bun": "bun run --watch src/server.ts",
+    "build": "tsc && node esbuild.config.js",
+    "build:bun": "bun build src/server.ts --outdir dist",
+    "start": "node dist/server.js",
+    "start:bun": "bun run dist/server.js",
+    "db:migrate": "drizzle-kit migrate:pg",
+    "db:migrate:bun": "bun drizzle-kit migrate:pg",
+    "db:studio": "drizzle-kit studio",
+    "db:studio:bun": "bun drizzle-kit studio",
+    "test": "vitest run",
+    "test:bun": "bun test"
   }
 }
 ```
@@ -173,17 +195,31 @@ Add the following scripts to your `package.json`:
 ### Initialize Frontend Project
 
 1. Navigate to the frontend directory:
+
    ```bash
    cd ../../app/frontend
    ```
 
 2. Create a new React project with Vite:
+
    ```bash
+   # With npm
+   npm create vite@latest . -- --template react-ts
+
+   # With Bun
    bun create vite . --template react-ts
    ```
 
 3. Install dependencies:
+
    ```bash
+   # With npm
+   npm install
+   npm install react-router-dom@7
+   npm install -D tailwindcss postcss autoprefixer
+   npm install -D @tailwindcss/forms @tailwindcss/typography
+
+   # With Bun
    bun install
    bun add react-router-dom@7
    bun add tailwindcss postcss autoprefixer -d
@@ -191,26 +227,29 @@ Add the following scripts to your `package.json`:
    ```
 
 4. Set up Tailwind CSS:
+
    ```bash
+   # With npm
+   npx tailwindcss init -p
+
+   # With Bun
    bunx tailwindcss init -p
    ```
 
 5. Configure Tailwind CSS in `tailwind.config.js`:
+
    ```javascript
    /** @type {import('tailwindcss').Config} */
    export default {
-     content: [
-       "./index.html",
-       "./src/**/*.{js,ts,jsx,tsx}",
-     ],
+     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
      theme: {
        extend: {},
      },
      plugins: [
-       require('@tailwindcss/forms'),
-       require('@tailwindcss/typography'),
+       require("@tailwindcss/forms"),
+       require("@tailwindcss/typography"),
      ],
-   }
+   };
    ```
 
 6. Update `src/index.css` with Tailwind directives:
@@ -223,28 +262,42 @@ Add the following scripts to your `package.json`:
 ### Set Up shadcn/ui
 
 1. Initialize shadcn/ui:
+
    ```bash
+   # With npm
+   npx shadcn-ui@latest init
+
+   # With Bun
    bunx shadcn-ui@latest init
    ```
+
    - Follow the prompts to configure shadcn/ui
    - Choose Tailwind CSS as the styling solution
    - Set the component directory to `src/components/ui`
 
 2. Install some basic components:
+
    ```bash
+   # With npm
+   npx shadcn-ui@latest add button card input form
+
+   # With Bun
    bunx shadcn-ui@latest add button card input form
    ```
 
 ### Configure API Client
 
 1. Create an API client directory:
+
    ```bash
    mkdir -p src/api
    ```
 
 2. Create a base API client at `src/api/client.ts`:
+
    ```typescript
-   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+   const API_BASE_URL =
+     import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
    export interface ApiResponse<T> {
      data?: T;
@@ -256,35 +309,35 @@ Add the following scripts to your `package.json`:
      endpoint: string,
      options: RequestInit = {}
    ): Promise<ApiResponse<T>> {
-     const token = localStorage.getItem('token');
-     
+     const token = localStorage.getItem("token");
+
      const headers = {
-       'Content-Type': 'application/json',
+       "Content-Type": "application/json",
        ...(token ? { Authorization: `Bearer ${token}` } : {}),
        ...options.headers,
      };
-     
+
      const config = {
        ...options,
        headers,
      };
-     
+
      try {
        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
        const data = await response.json();
-       
+
        if (!response.ok) {
          return {
-           error: data.error || 'An unexpected error occurred',
+           error: data.error || "An unexpected error occurred",
            message: data.message,
          };
        }
-       
+
        return { data };
      } catch (error) {
        return {
-         error: 'Network error',
-         message: error instanceof Error ? error.message : 'Unknown error',
+         error: "Network error",
+         message: error instanceof Error ? error.message : "Unknown error",
        };
      }
    }
@@ -293,20 +346,22 @@ Add the following scripts to your `package.json`:
 ### Set Up Application Structure
 
 1. Create the basic directory structure:
+
    ```bash
    mkdir -p src/components/layout src/components/recipes src/pages src/hooks src/context src/utils
    ```
 
 2. Create a router file at `src/router.tsx`:
+
    ```tsx
-   import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-   import App from './App';
-   import HomePage from './pages/HomePage';
-   import NotFoundPage from './pages/NotFoundPage';
-   
+   import { createBrowserRouter, RouterProvider } from "react-router-dom";
+   import App from "./App";
+   import HomePage from "./pages/HomePage";
+   import NotFoundPage from "./pages/NotFoundPage";
+
    const router = createBrowserRouter([
      {
-       path: '/',
+       path: "/",
        element: <App />,
        errorElement: <NotFoundPage />,
        children: [
@@ -318,31 +373,33 @@ Add the following scripts to your `package.json`:
        ],
      },
    ]);
-   
+
    export function Router() {
      return <RouterProvider router={router} />;
    }
    ```
 
 3. Update `src/main.tsx`:
+
    ```tsx
-   import React from 'react';
-   import ReactDOM from 'react-dom/client';
-   import { Router } from './router';
-   import './index.css';
-   
-   ReactDOM.createRoot(document.getElementById('root')!).render(
+   import React from "react";
+   import ReactDOM from "react-dom/client";
+   import { Router } from "./router";
+   import "./index.css";
+
+   ReactDOM.createRoot(document.getElementById("root")!).render(
      <React.StrictMode>
        <Router />
-     </React.StrictMode>,
+     </React.StrictMode>
    );
    ```
 
 4. Update `src/App.tsx`:
+
    ```tsx
-   import { Outlet } from 'react-router-dom';
-   import { MainLayout } from './components/layout/MainLayout';
-   
+   import { Outlet } from "react-router-dom";
+   import { MainLayout } from "./components/layout/MainLayout";
+
    function App() {
      return (
        <MainLayout>
@@ -350,13 +407,14 @@ Add the following scripts to your `package.json`:
        </MainLayout>
      );
    }
-   
+
    export default App;
    ```
 
 ### Configure Environment Variables
 
 Create a `.env` file in the frontend directory:
+
 ```
 VITE_API_URL=http://localhost:3000/api
 ```
@@ -379,28 +437,34 @@ Ensure your `package.json` has the following scripts:
 ## Root Project Setup
 
 1. Navigate back to the project root:
+
    ```bash
    cd ../..
    ```
 
 2. Create a root `package.json` for managing both projects:
+
    ```json
    {
      "name": "reccollection",
      "version": "1.0.0",
      "private": true,
-     "workspaces": [
-       "app/backend",
-       "app/frontend"
-     ],
+     "workspaces": ["app/backend", "app/frontend"],
      "scripts": {
-       "dev:backend": "cd app/backend && bun run dev",
-       "dev:frontend": "cd app/frontend && bun run dev",
-       "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
-       "build:backend": "cd app/backend && bun run build",
-       "build:frontend": "cd app/frontend && bun run build",
-       "build": "bun run build:backend && bun run build:frontend",
-       "start": "cd app/backend && bun run start"
+       "dev:backend": "cd app/backend && npm run dev",
+       "dev:backend:bun": "cd app/backend && bun run dev:bun",
+       "dev:frontend": "cd app/frontend && npm run dev",
+       "dev:frontend:bun": "cd app/frontend && bun run dev",
+       "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+       "dev:all:bun": "concurrently \"npm run dev:backend:bun\" \"npm run dev:frontend:bun\"",
+       "build:backend": "cd app/backend && npm run build",
+       "build:backend:bun": "cd app/backend && bun run build:bun",
+       "build:frontend": "cd app/frontend && npm run build",
+       "build:frontend:bun": "cd app/frontend && bun run build",
+       "build:all": "npm run build:backend && npm run build:frontend",
+       "build:all:bun": "npm run build:backend:bun && npm run build:frontend:bun",
+       "start": "cd app/backend && npm run start",
+       "start:bun": "cd app/backend && bun run start:bun"
      },
      "devDependencies": {
        "concurrently": "^8.2.0"
@@ -409,37 +473,54 @@ Ensure your `package.json` has the following scripts:
    ```
 
 3. Install the root dependencies:
+
    ```bash
+   # With npm
+   npm install
+
+   # With Bun
    bun install
    ```
 
 ## Database Setup
 
 1. Start PostgreSQL if it's not already running:
+
    ```bash
    # On macOS
    brew services start postgresql
-   
+
    # On Ubuntu
    sudo service postgresql start
    ```
 
 2. Run the database migrations:
+
    ```bash
    cd app/backend
-   bun run db:migrate
+
+   # With npm
+   npm run db:migrate
+
+   # With Bun
+   bun run db:migrate:bun
    ```
 
 ## Running the Application
 
 1. From the project root, start both the backend and frontend:
+
    ```bash
-   bun run dev
+   # With npm
+   npm run dev:all
+
+   # With Bun
+   npm run dev:all:bun
    ```
 
 2. Access the application:
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000/api
+   - Backend API: http://localhost:3001/api
 
 ## Next Steps
 
@@ -458,20 +539,23 @@ Refer to the project documentation for detailed information on each component an
 ### Common Issues
 
 1. **Database Connection Issues**:
+
    - Verify PostgreSQL is running
    - Check database credentials in `.env`
    - Ensure the database exists
 
 2. **Port Conflicts**:
-   - If ports 3000 or 5173 are in use, modify the port in the respective configuration
+
+   - If ports 3001 or 5173 are in use, modify the port in the respective configuration
 
 3. **Dependency Issues**:
-   - Run `bun install` in the specific project directory
+   - Run `npm install` or `bun install` in the specific project directory
    - Check for compatibility issues in the console
 
 ### Getting Help
 
 If you encounter issues not covered here, please:
+
 1. Check the error logs
 2. Consult the project documentation
 3. Reach out to the development team
