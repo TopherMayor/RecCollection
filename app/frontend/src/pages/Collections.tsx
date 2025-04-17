@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { api } from "../api";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/buttons/Button";
-import { PlusIcon, FolderIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Plus, Folder, X } from "lucide-react";
 
 interface Collection {
   id: number;
@@ -34,8 +34,8 @@ export default function Collections() {
         setLoading(true);
         setError(null);
 
-        const response = await api.get("/collections");
-        
+        const response = await api.collections.getAll();
+
         if (response.success && response.collections) {
           setCollections(response.collections);
         } else {
@@ -55,7 +55,7 @@ export default function Collections() {
   // Handle creating a new collection
   const handleCreateCollection = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newCollectionName.trim()) {
       setCreateError("Collection name is required");
       return;
@@ -65,7 +65,7 @@ export default function Collections() {
       setCreateLoading(true);
       setCreateError(null);
 
-      const response = await api.post("/collections", {
+      const response = await api.collections.create({
         name: newCollectionName.trim(),
         description: newCollectionDescription.trim() || undefined,
       });
@@ -73,7 +73,7 @@ export default function Collections() {
       if (response.success && response.collection) {
         // Add the new collection to the list
         setCollections([...collections, response.collection]);
-        
+
         // Reset form
         setNewCollectionName("");
         setNewCollectionDescription("");
@@ -96,11 +96,11 @@ export default function Collections() {
     }
 
     try {
-      const response = await api.delete(`/collections/${collectionId}`);
+      const response = await api.collections.delete(collectionId);
 
       if (response.success) {
         // Remove the deleted collection from the list
-        setCollections(collections.filter(c => c.id !== collectionId));
+        setCollections(collections.filter((c) => c.id !== collectionId));
       } else {
         setError("Failed to delete collection");
       }
@@ -140,7 +140,13 @@ export default function Collections() {
           <h1 className="text-3xl font-bold text-gray-900">My Collections</h1>
           <Button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            leftIcon={showCreateForm ? <XMarkIcon className="h-5 w-5" /> : <PlusIcon className="h-5 w-5" />}
+            leftIcon={
+              showCreateForm ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Plus className="h-5 w-5" />
+              )
+            }
           >
             {showCreateForm ? "Cancel" : "Create Collection"}
           </Button>
@@ -149,10 +155,15 @@ export default function Collections() {
         {/* Create Collection Form */}
         {showCreateForm && (
           <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Create New Collection</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Create New Collection
+            </h2>
             <form onSubmit={handleCreateCollection}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name
                 </label>
                 <input
@@ -167,7 +178,10 @@ export default function Collections() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Description (optional)
                 </label>
                 <textarea
@@ -201,7 +215,7 @@ export default function Collections() {
           <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
             <div className="flex">
               <div className="flex-shrink-0">
-                <XMarkIcon className="h-5 w-5 text-red-400" />
+                <X className="h-5 w-5 text-red-400" />
               </div>
               <div className="ml-3">
                 <p className="text-sm text-red-700">{error}</p>
@@ -218,8 +232,10 @@ export default function Collections() {
           </div>
         ) : collections.length === 0 ? (
           <div className="text-center py-12 bg-white shadow rounded-lg">
-            <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-lg font-medium text-gray-900">No collections yet</h3>
+            <Folder className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900">
+              No collections yet
+            </h3>
             <p className="mt-1 text-sm text-gray-500">
               Create your first collection to organize your recipes.
             </p>
@@ -255,7 +271,7 @@ export default function Collections() {
                       className="text-gray-400 hover:text-red-500"
                       aria-label="Delete collection"
                     >
-                      <XMarkIcon className="h-5 w-5" />
+                      <X className="h-5 w-5" />
                     </button>
                   </div>
                   <div className="mt-4">

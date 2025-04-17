@@ -1,14 +1,17 @@
 # RecCollection API Documentation
 
 ## Base URL
+
 ```
 /api
 ```
 
 ## Authentication
+
 Most endpoints require authentication using JWT tokens.
 
 ### Headers
+
 ```
 Authorization: Bearer <token>
 ```
@@ -18,11 +21,13 @@ Authorization: Bearer <token>
 ### Authentication
 
 #### Register a new user
+
 ```
 POST /auth/register
 ```
 
 **Request Body:**
+
 ```json
 {
   "username": "johndoe",
@@ -32,6 +37,7 @@ POST /auth/register
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -46,11 +52,13 @@ POST /auth/register
 ```
 
 #### Login
+
 ```
 POST /auth/login
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -59,6 +67,7 @@ POST /auth/login
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -72,11 +81,13 @@ POST /auth/login
 ```
 
 #### Get current user
+
 ```
 GET /auth/me
 ```
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -92,11 +103,13 @@ GET /auth/me
 ### Recipes
 
 #### Get all recipes
+
 ```
 GET /recipes
 ```
 
 **Query Parameters:**
+
 - `page`: Page number (default: 1)
 - `limit`: Items per page (default: 10)
 - `search`: Search term
@@ -104,6 +117,7 @@ GET /recipes
 - `user_id`: Filter by user
 
 **Response:**
+
 ```json
 {
   "recipes": [
@@ -131,11 +145,13 @@ GET /recipes
 ```
 
 #### Get recipe by ID
+
 ```
 GET /recipes/:id
 ```
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -204,11 +220,13 @@ GET /recipes/:id
 ```
 
 #### Create a recipe
+
 ```
 POST /recipes
 ```
 
 **Request Body:**
+
 ```json
 {
   "title": "Chocolate Chip Cookies",
@@ -248,6 +266,7 @@ POST /recipes
 ```
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -259,6 +278,7 @@ POST /recipes
 ```
 
 #### Update a recipe
+
 ```
 PUT /recipes/:id
 ```
@@ -267,6 +287,7 @@ PUT /recipes/:id
 Same as create recipe
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -277,11 +298,13 @@ Same as create recipe
 ```
 
 #### Delete a recipe
+
 ```
 DELETE /recipes/:id
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -292,11 +315,13 @@ DELETE /recipes/:id
 ### Social Features
 
 #### Like a recipe
+
 ```
 POST /recipes/:id/like
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -305,11 +330,13 @@ POST /recipes/:id/like
 ```
 
 #### Unlike a recipe
+
 ```
 DELETE /recipes/:id/like
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -318,11 +345,13 @@ DELETE /recipes/:id/like
 ```
 
 #### Save a recipe
+
 ```
 POST /recipes/:id/save
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -331,11 +360,13 @@ POST /recipes/:id/save
 ```
 
 #### Unsave a recipe
+
 ```
 DELETE /recipes/:id/save
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -344,11 +375,13 @@ DELETE /recipes/:id/save
 ```
 
 #### Add a comment
+
 ```
 POST /recipes/:id/comments
 ```
 
 **Request Body:**
+
 ```json
 {
   "content": "This recipe is amazing!"
@@ -356,6 +389,7 @@ POST /recipes/:id/comments
 ```
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -369,11 +403,13 @@ POST /recipes/:id/comments
 ```
 
 #### Get recipe comments
+
 ```
 GET /recipes/:id/comments
 ```
 
 **Response:**
+
 ```json
 {
   "comments": [
@@ -396,14 +432,195 @@ GET /recipes/:id/comments
 }
 ```
 
+### Collections
+
+#### Get all collections
+
+```
+GET /collections
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "collections": [
+    {
+      "id": 1,
+      "name": "Favorite Desserts",
+      "description": "My favorite dessert recipes",
+      "userId": 1,
+      "createdAt": "2023-06-01T12:00:00Z",
+      "updatedAt": "2023-06-01T12:00:00Z"
+    }
+  ]
+}
+```
+
+#### Get collection by ID
+
+```
+GET /collections/:id
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "collection": {
+    "id": 1,
+    "name": "Favorite Desserts",
+    "description": "My favorite dessert recipes",
+    "userId": 1,
+    "createdAt": "2023-06-01T12:00:00Z",
+    "updatedAt": "2023-06-01T12:00:00Z"
+  },
+  "recipes": [
+    {
+      "id": 1,
+      "title": "Chocolate Chip Cookies",
+      "description": "Classic homemade chocolate chip cookies",
+      "imageUrl": "https://example.com/cookies.jpg",
+      "user": {
+        "id": 1,
+        "username": "johndoe"
+      }
+    }
+  ]
+}
+```
+
+#### Create a collection
+
+```
+POST /collections
+```
+
+**Request Body:**
+
+```json
+{
+  "name": "Favorite Desserts",
+  "description": "My favorite dessert recipes"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "collection": {
+    "id": 1,
+    "name": "Favorite Desserts",
+    "description": "My favorite dessert recipes",
+    "userId": 1,
+    "createdAt": "2023-06-01T12:00:00Z",
+    "updatedAt": "2023-06-01T12:00:00Z"
+  }
+}
+```
+
+#### Update a collection
+
+```
+PUT /collections/:id
+```
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Desserts Collection",
+  "description": "Updated description"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "collection": {
+    "id": 1,
+    "name": "Updated Desserts Collection",
+    "description": "Updated description",
+    "userId": 1,
+    "createdAt": "2023-06-01T12:00:00Z",
+    "updatedAt": "2023-06-02T12:00:00Z"
+  }
+}
+```
+
+#### Delete a collection
+
+```
+DELETE /collections/:id
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Collection deleted successfully"
+}
+```
+
+#### Add a recipe to a collection
+
+```
+POST /collections/:id/recipes
+```
+
+**Request Body:**
+
+```json
+{
+  "recipeId": 1
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "recipeCollection": {
+    "recipeId": 1,
+    "collectionId": 1,
+    "createdAt": "2023-06-01T12:00:00Z"
+  }
+}
+```
+
+#### Remove a recipe from a collection
+
+```
+DELETE /collections/:id/recipes/:recipeId
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Recipe removed from collection"
+}
+```
+
 ### Recipe Import
 
 #### Import from Instagram
+
 ```
 POST /import/instagram
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://www.instagram.com/p/ABC123/"
@@ -411,6 +628,7 @@ POST /import/instagram
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -425,11 +643,13 @@ POST /import/instagram
 ```
 
 #### Import from TikTok
+
 ```
 POST /import/tiktok
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://www.tiktok.com/@user/video/123456"
@@ -437,6 +657,7 @@ POST /import/tiktok
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -453,19 +674,26 @@ POST /import/tiktok
 ### AI Features
 
 #### Generate recipe name
+
 ```
 POST /ai/generate-name
 ```
 
 **Request Body:**
+
 ```json
 {
   "ingredients": ["flour", "sugar", "eggs", "chocolate"],
-  "instructions": ["Mix dry ingredients", "Add wet ingredients", "Bake at 350°F"]
+  "instructions": [
+    "Mix dry ingredients",
+    "Add wet ingredients",
+    "Bake at 350°F"
+  ]
 }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -474,20 +702,27 @@ POST /ai/generate-name
 ```
 
 #### Generate recipe description
+
 ```
 POST /ai/generate-description
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Classic Chocolate Cake",
   "ingredients": ["flour", "sugar", "eggs", "chocolate"],
-  "instructions": ["Mix dry ingredients", "Add wet ingredients", "Bake at 350°F"]
+  "instructions": [
+    "Mix dry ingredients",
+    "Add wet ingredients",
+    "Bake at 350°F"
+  ]
 }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -498,6 +733,7 @@ POST /ai/generate-description
 ## Error Responses
 
 ### Authentication Error
+
 ```json
 {
   "success": false,
@@ -507,6 +743,7 @@ POST /ai/generate-description
 ```
 
 ### Validation Error
+
 ```json
 {
   "success": false,
@@ -519,6 +756,7 @@ POST /ai/generate-description
 ```
 
 ### Not Found Error
+
 ```json
 {
   "success": false,
@@ -528,6 +766,7 @@ POST /ai/generate-description
 ```
 
 ### Server Error
+
 ```json
 {
   "success": false,
