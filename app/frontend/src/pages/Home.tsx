@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../hooks/useAuth";
+import { TabFilter, TabOption } from "../components/ui";
 
 interface Recipe {
   id: number;
@@ -195,19 +196,18 @@ function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Latest Recipes</h1>
-
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-6 mb-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Latest Recipes</h1>
           {user && (
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <Link
                 to="/app/create"
-                className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center"
+                className="h-12 bg-green-600 text-white px-6 rounded-md text-base font-medium hover:bg-green-700 transition-colors flex items-center justify-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
+                  className="h-5 w-5 mr-2"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -221,11 +221,11 @@ function Home() {
               </Link>
               <Link
                 to="/app/import"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center"
+                className="h-12 bg-indigo-600 text-white px-6 rounded-md text-base font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
+                  className="h-5 w-5 mr-2"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -239,77 +239,49 @@ function Home() {
               </Link>
             </div>
           )}
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-gray-100 p-1 rounded-lg self-end sm:self-auto w-full sm:w-auto">
-            <button
-              onClick={() => setFilterMode("all")}
-              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                filterMode === "all"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All Recipes
-            </button>
-            <button
-              onClick={() => setFilterMode("mine")}
-              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                filterMode === "mine"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              My Recipes
-            </button>
-            <button
-              onClick={() => setFilterMode("following")}
-              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                filterMode === "following"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Following
-            </button>
-            <button
-              onClick={() => setFilterMode("others")}
-              className={`h-10 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                filterMode === "others"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Others' Recipes
-            </button>
-          </div>
         </div>
+
+        <TabFilter
+          options={[
+            { id: "all", label: "All Recipes" },
+            { id: "mine", label: "My Recipes" },
+            { id: "following", label: "Following" },
+            { id: "others", label: "Others' Recipes" },
+          ]}
+          activeTab={filterMode}
+          onChange={(tabId) =>
+            setFilterMode(tabId as "all" | "mine" | "others" | "following")
+          }
+        />
       </div>
 
       {loading && (
         <div className="flex justify-center items-center h-40">
-          <p className="text-gray-500">Loading recipes...</p>
+          <p className="text-gray-500 text-lg">Loading recipes...</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-bold">Error loading recipes</p>
-          <p>{error}</p>
-          <p className="text-sm mt-2">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-6 rounded-lg mb-4">
+          <p className="font-bold text-lg">Error loading recipes</p>
+          <p className="mt-2">{error}</p>
+          <p className="mt-4">
             Please try refreshing the page or check your network connection.
           </p>
         </div>
       )}
 
       {!loading && recipes.length === 0 && !error && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          <p>No recipes found. Be the first to add a recipe!</p>
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-6 py-6 rounded-lg mb-4 text-center">
+          <p className="text-lg">
+            No recipes found. Be the first to add a recipe!
+          </p>
         </div>
       )}
 
       {!loading && filteredRecipes.length === 0 && recipes.length > 0 && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          <p>
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-6 py-6 rounded-lg mb-4 text-center">
+          <p className="text-lg">
             {filterMode === "mine"
               ? "You haven't created any recipes yet. Click 'Create Recipe' to get started!"
               : filterMode === "others"

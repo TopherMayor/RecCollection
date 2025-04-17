@@ -15,6 +15,8 @@
 - [x] Added show password toggle in authentication forms
 - [x] Implemented notifications system
 - [x] Optimized notification system to reduce API calls
+- [x] Improved filter tab design with more compact and modern UI
+- [x] Created reusable TabFilter component for consistent filtering UI
 
 ### Backend
 

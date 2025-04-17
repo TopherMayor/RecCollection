@@ -57,6 +57,7 @@ The component library is organized into the following categories:
 - `Button`: Configurable button component with variants
 - `IconButton`: Button with icon only
 - `Link`: Enhanced link component
+- `TabFilter`: Compact tab navigation for filtering content
 
 ## Usage Guidelines
 
@@ -181,6 +182,29 @@ A text component with configurable size, weight, and color.
 - `color`: CSS color class (default: "")
 - `className`: Additional CSS classes
 - `children`: React nodes
+
+#### TabFilter
+
+A compact tab navigation component for filtering content.
+
+```tsx
+<TabFilter
+  options={[
+    { id: "all", label: "All Items" },
+    { id: "active", label: "Active Items" },
+    { id: "archived", label: "Archived Items", count: 5 },
+  ]}
+  activeTab="all"
+  onChange={(tabId) => setActiveTab(tabId)}
+/>
+```
+
+**Props:**
+
+- `options`: Array of tab options with shape `{ id: string, label: React.ReactNode, count?: number }`
+- `activeTab`: ID of the currently active tab
+- `onChange`: Function called when a tab is clicked, receives tab ID as argument
+- `className`: Additional CSS classes
 
 ### Media Components
 
