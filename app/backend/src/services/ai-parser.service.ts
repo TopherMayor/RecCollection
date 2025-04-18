@@ -1,10 +1,10 @@
 import { HTTPException } from "hono/http-exception";
-import type { RecipeInput } from "./recipe.service";
+import type { RecipeInput } from "./recipe.service.ts";
 import { YoutubeTranscript } from "youtube-transcript";
 import fetch from "node-fetch";
 import "dotenv/config";
-import { WebScraperService } from "./web-scraper.service";
-import { createDefaultThumbnail } from "../utils/image";
+import { WebScraperService } from "./web-scraper.service.ts";
+import { createDefaultThumbnail } from "../utils/image.ts";
 
 // Response wrapper interface for AI service calls
 interface AIResponseWrapper<T> {

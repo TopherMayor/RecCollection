@@ -6,7 +6,7 @@ import {
   downloadImage,
   isValidImageUrl,
   createDefaultThumbnail,
-} from "../utils/image";
+} from "../utils/image.ts";
 
 // We don't need to declare DOM types as they're available in the browser context during page.evaluate
 

@@ -1,8 +1,8 @@
 import type { Context } from "hono";
-import { SharingService } from "../services/sharing.service";
-import { DeepLinkService } from "../services/deeplink.service";
+import { SharingService } from "../services/sharing.service.ts";
+import { DeepLinkService } from "../services/deeplink.service.ts";
 import { HTTPException } from "hono/http-exception";
-import { JWTPayload } from "../types";
+import { JWTPayload } from "../middleware/auth.ts";
 
 // Create instances of the services
 const sharingService = new SharingService();
@@ -14,34 +14,35 @@ export class SharingController {
     try {
       const user = c.get("user") as JWTPayload;
       const { recipeId } = c.req.param();
-      const { sharedWith, shareType, message, expiresInDays } = await c.req.json();
-      
+      const { sharedWith, shareType, message, expiresInDays } =
+        await c.req.json();
+
       // Validate required fields
       if (!sharedWith || !shareType) {
         throw new HTTPException(400, { message: "Missing required fields" });
       }
-      
+
       // Validate share type
       if (!["email", "sms", "link"].includes(shareType)) {
         throw new HTTPException(400, { message: "Invalid share type" });
       }
-      
+
       // Calculate expiration date if provided
       let expiresAt = undefined;
       if (expiresInDays && !isNaN(expiresInDays)) {
         expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + parseInt(expiresInDays));
       }
-      
+
       const result = await sharingService.shareRecipe({
         recipeId: parseInt(recipeId),
-        sharedBy: user.id,
+        sharedBy: Number(user.id),
         sharedWith,
         shareType,
         message,
         expiresAt,
       });
-      
+
       return c.json({
         success: true,
         share: result,
@@ -56,14 +57,14 @@ export class SharingController {
       });
     }
   }
-  
+
   // Get shared recipe by token
   async getSharedRecipeByToken(c: Context) {
     try {
       const { token } = c.req.param();
-      
+
       const result = await sharingService.getSharedRecipeByToken(token);
-      
+
       return c.json({
         success: true,
         ...result,
@@ -78,14 +79,16 @@ export class SharingController {
       });
     }
   }
-  
+
   // Get user's shared recipes
   async getUserSharedRecipes(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
-      
-      const sharedRecipes = await sharingService.getUserSharedRecipes(user.id);
-      
+
+      const sharedRecipes = await sharingService.getUserSharedRecipes(
+        Number(user.id)
+      );
+
       return c.json({
         success: true,
         sharedRecipes,
@@ -100,20 +103,20 @@ export class SharingController {
       });
     }
   }
-  
+
   // Delete shared recipe
   async deleteSharedRecipe(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
       const { id } = c.req.param();
-      
+
       const shareId = parseInt(id);
       if (isNaN(shareId)) {
         throw new HTTPException(400, { message: "Invalid share ID" });
       }
-      
-      await sharingService.deleteSharedRecipe(user.id, shareId);
-      
+
+      await sharingService.deleteSharedRecipe(Number(user.id), shareId);
+
       return c.json({
         success: true,
       });
@@ -127,19 +130,19 @@ export class SharingController {
       });
     }
   }
-  
+
   // Generate deep link for recipe import
   async generateImportDeepLink(c: Context) {
     try {
       const { url, source } = await c.req.json();
-      
+
       // Validate required fields
       if (!url || !source) {
         throw new HTTPException(400, { message: "Missing required fields" });
       }
-      
+
       const deepLink = deepLinkService.createImportDeepLink(url, source);
-      
+
       return c.json({
         success: true,
         deepLink: JSON.parse(deepLink),
@@ -154,18 +157,20 @@ export class SharingController {
       });
     }
   }
-  
+
   // Get pending import by token
   async getPendingImport(c: Context) {
     try {
       const { token } = c.req.param();
-      
+
       const importData = deepLinkService.getPendingImport(token);
-      
+
       if (!importData) {
-        throw new HTTPException(404, { message: "Import not found or expired" });
+        throw new HTTPException(404, {
+          message: "Import not found or expired",
+        });
       }
-      
+
       return c.json({
         success: true,
         import: importData,
@@ -180,14 +185,14 @@ export class SharingController {
       });
     }
   }
-  
+
   // Delete pending import
   async deletePendingImport(c: Context) {
     try {
       const { token } = c.req.param();
-      
+
       const result = deepLinkService.deletePendingImport(token);
-      
+
       return c.json({
         success: true,
         deleted: result,

@@ -1,9 +1,9 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { AIParserService } from "../services/ai-parser.service";
-import { RecipeService } from "../services/recipe.service";
-import { JWTPayload } from "../middleware/auth";
-import { createDefaultThumbnail } from "../utils/image";
+import { AIParserService } from "../services/ai-parser.service.ts";
+import { RecipeService } from "../services/recipe.service.ts";
+import { JWTPayload } from "../middleware/auth.ts";
+import { createDefaultThumbnail } from "../utils/image.ts";
 
 // Create instances of the services
 const aiParserService = new AIParserService();
@@ -37,7 +37,7 @@ export class AIParserController {
         await aiParserService.parseRecipeFromSocialMedia({
           url,
           platform,
-          userId: user.id,
+          userId: Number(user.id),
           captureMultipleScreenshots: true,
         });
 
@@ -95,8 +95,8 @@ export class AIParserController {
       ) {
         throw new HTTPException(422, {
           message:
-            "The video doesn't have captions available. The AI will try to generate a recipe based on limited information.",
-          details: errorMessage,
+            "The video doesn't have captions available. The AI will try to generate a recipe based on limited information. Details: " +
+            errorMessage,
         });
       } else if (
         errorMessage.includes("JSON") ||
@@ -104,8 +104,8 @@ export class AIParserController {
       ) {
         throw new HTTPException(422, {
           message:
-            "There was an issue processing the AI response. Please try again.",
-          details: errorMessage,
+            "There was an issue processing the AI response. Please try again. Details: " +
+            errorMessage,
         });
       } else if (
         errorMessage.includes("URL") ||
@@ -113,15 +113,15 @@ export class AIParserController {
       ) {
         throw new HTTPException(400, {
           message:
-            "Invalid URL format. Please provide a valid YouTube, TikTok, or Instagram URL.",
-          details: errorMessage,
+            "Invalid URL format. Please provide a valid YouTube, TikTok, or Instagram URL. Details: " +
+            errorMessage,
         });
       }
 
       // Generic error
       throw new HTTPException(500, {
-        message: "Failed to parse recipe from social media",
-        details: errorMessage,
+        message:
+          "Failed to parse recipe from social media. Details: " + errorMessage,
       });
     }
   }
@@ -160,7 +160,7 @@ export class AIParserController {
         parsedRecipe = await aiParserService.parseRecipeFromSocialMedia({
           url,
           platform,
-          userId: user.id,
+          userId: Number(user.id),
         });
       }
 
@@ -214,7 +214,7 @@ export class AIParserController {
 
       // Create the recipe in the database
       const createdRecipe = await recipeService.createRecipe(
-        user.id,
+        Number(user.id),
         parsedRecipe
       );
 

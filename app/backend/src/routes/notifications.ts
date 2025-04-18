@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { NotificationController } from "../controllers/notification.controller";
-import { authenticate } from "../middleware/auth";
-import { rateLimit, readRateLimit } from "../middleware/rate-limit";
+import { NotificationController } from "../controllers/notification.controller.ts";
+import { authenticate } from "../middleware/auth.ts";
+import { rateLimit, readRateLimit } from "../middleware/rate-limit.ts";
 
 // Create a new router
 const router = new Hono();

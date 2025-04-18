@@ -1,7 +1,7 @@
 import type { Context } from "hono";
-import { NotificationService } from "../services/notification.service";
+import { NotificationService } from "../services/notification.service.ts";
 import { HTTPException } from "hono/http-exception";
-import { JWTPayload } from "../types";
+import { JWTPayload } from "../middleware/auth.ts";
 
 // Create an instance of the notification service
 const notificationService = new NotificationService();
@@ -26,10 +26,13 @@ export class NotificationController {
       const pageNum = page ? parseInt(page) : 1;
       const limitNum = limit ? parseInt(limit) : 10;
 
-      const result = await notificationService.getUserNotifications(user.id, {
-        page: pageNum,
-        limit: limitNum,
-      });
+      const result = await notificationService.getUserNotifications(
+        Number(user.id),
+        {
+          page: pageNum,
+          limit: limitNum,
+        }
+      );
 
       return c.json({
         success: true,
@@ -50,7 +53,7 @@ export class NotificationController {
   async getUnreadNotificationCount(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
-      const userId = user.id;
+      const userId = Number(user.id);
       const now = Date.now();
 
       // Check if we have a valid cached count
@@ -95,7 +98,7 @@ export class NotificationController {
   async markNotificationAsRead(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
-      const userId = user.id;
+      const userId = Number(user.id);
       const { id } = c.req.param();
 
       const notificationId = parseInt(id);
@@ -130,7 +133,7 @@ export class NotificationController {
   async markAllNotificationsAsRead(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
-      const userId = user.id;
+      const userId = Number(user.id);
 
       const count = await notificationService.markAllNotificationsAsRead(
         userId
@@ -158,7 +161,7 @@ export class NotificationController {
   async deleteNotification(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
-      const userId = user.id;
+      const userId = Number(user.id);
       const { id } = c.req.param();
 
       const notificationId = parseInt(id);
@@ -189,9 +192,10 @@ export class NotificationController {
   async getNotificationPreferences(c: Context) {
     try {
       const user = c.get("user") as JWTPayload;
+      const userId = Number(user.id);
 
       const preferences =
-        await notificationService.getUserNotificationPreferences(user.id);
+        await notificationService.getUserNotificationPreferences(userId);
 
       return c.json({
         success: true,
@@ -216,7 +220,7 @@ export class NotificationController {
 
       const updatedPreferences =
         await notificationService.updateNotificationPreferences(
-          user.id,
+          Number(user.id),
           preferences
         );
 

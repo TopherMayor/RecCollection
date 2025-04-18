@@ -1,6 +1,7 @@
 import { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { JWTPayload } from "../types";
+import { JWTPayload } from "./auth.ts";
+import { RateLimitHeadersOverride } from "../types/rate-limit-headers.js";
 
 // Simple in-memory rate limiter
 // Maps user IDs to their request timestamps
@@ -22,40 +23,54 @@ export const rateLimit = async (c: Context, next: Next) => {
     const now = Date.now();
 
     // Get user's request timestamps
-    let timestamps = requestTimestamps.get(userId) || [];
-    
+    let timestamps = requestTimestamps.get(Number(userId)) || [];
+
     // Filter out timestamps outside the time window
-    timestamps = timestamps.filter(time => now - time < TIME_WINDOW);
-    
+    timestamps = timestamps.filter((time) => now - time < TIME_WINDOW);
+
     // Check if user has exceeded rate limit
     if (timestamps.length >= MAX_REQUESTS) {
       // Calculate time until reset
       const oldestTimestamp = timestamps[0];
       const resetTime = oldestTimestamp + TIME_WINDOW - now;
       const resetSeconds = Math.ceil(resetTime / 1000);
-      
+
       throw new HTTPException(429, {
         message: `Rate limit exceeded. Try again in ${resetSeconds} seconds.`,
-        res: {
-          headers: {
-            'X-RateLimit-Limit': MAX_REQUESTS.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': Math.ceil((now + resetTime) / 1000).toString(),
-            'Retry-After': resetSeconds.toString()
+        res: new Response(
+          JSON.stringify({
+            message: `Rate limit exceeded. Try again in ${resetSeconds} seconds.`,
+          }),
+          {
+            status: 429,
+            headers: {
+              "X-RateLimit-Limit": MAX_REQUESTS.toString(),
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": Math.ceil(
+                (now + resetTime) / 1000
+              ).toString(),
+              "Retry-After": resetSeconds.toString(),
+            } as RateLimitHeadersOverride,
           }
-        }
+        ),
       });
     }
-    
+
     // Add current timestamp to user's request timestamps
     timestamps.push(now);
-    requestTimestamps.set(userId, timestamps);
-    
+    requestTimestamps.set(Number(userId), timestamps);
+
     // Set rate limit headers
-    c.header('X-RateLimit-Limit', MAX_REQUESTS.toString());
-    c.header('X-RateLimit-Remaining', (MAX_REQUESTS - timestamps.length).toString());
-    c.header('X-RateLimit-Reset', Math.ceil((now + TIME_WINDOW) / 1000).toString());
-    
+    c.header("X-RateLimit-Limit", MAX_REQUESTS.toString());
+    c.header(
+      "X-RateLimit-Remaining",
+      (MAX_REQUESTS - timestamps.length).toString()
+    );
+    c.header(
+      "X-RateLimit-Reset",
+      Math.ceil((now + TIME_WINDOW) / 1000).toString()
+    );
+
     // Continue to the next middleware or route handler
     await next();
   } catch (error) {
@@ -77,43 +92,57 @@ export const readRateLimit = async (c: Context, next: Next) => {
     const now = Date.now();
 
     // Get user's request timestamps
-    let timestamps = requestTimestamps.get(userId) || [];
-    
+    let timestamps = requestTimestamps.get(Number(userId)) || [];
+
     // Filter out timestamps outside the time window
-    timestamps = timestamps.filter(time => now - time < TIME_WINDOW);
-    
+    timestamps = timestamps.filter((time) => now - time < TIME_WINDOW);
+
     // For read-only endpoints, allow more requests
     const readMaxRequests = MAX_REQUESTS * 3;
-    
+
     // Check if user has exceeded rate limit
     if (timestamps.length >= readMaxRequests) {
       // Calculate time until reset
       const oldestTimestamp = timestamps[0];
       const resetTime = oldestTimestamp + TIME_WINDOW - now;
       const resetSeconds = Math.ceil(resetTime / 1000);
-      
+
       throw new HTTPException(429, {
         message: `Rate limit exceeded. Try again in ${resetSeconds} seconds.`,
-        res: {
-          headers: {
-            'X-RateLimit-Limit': readMaxRequests.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': Math.ceil((now + resetTime) / 1000).toString(),
-            'Retry-After': resetSeconds.toString()
+        res: new Response(
+          JSON.stringify({
+            message: `Rate limit exceeded. Try again in ${resetSeconds} seconds.`,
+          }),
+          {
+            status: 429,
+            headers: {
+              "X-RateLimit-Limit": readMaxRequests.toString(),
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": Math.ceil(
+                (now + resetTime) / 1000
+              ).toString(),
+              "Retry-After": resetSeconds.toString(),
+            } as RateLimitHeadersOverride,
           }
-        }
+        ),
       });
     }
-    
+
     // Add current timestamp to user's request timestamps
     timestamps.push(now);
-    requestTimestamps.set(userId, timestamps);
-    
+    requestTimestamps.set(Number(userId), timestamps);
+
     // Set rate limit headers
-    c.header('X-RateLimit-Limit', readMaxRequests.toString());
-    c.header('X-RateLimit-Remaining', (readMaxRequests - timestamps.length).toString());
-    c.header('X-RateLimit-Reset', Math.ceil((now + TIME_WINDOW) / 1000).toString());
-    
+    c.header("X-RateLimit-Limit", readMaxRequests.toString());
+    c.header(
+      "X-RateLimit-Remaining",
+      (readMaxRequests - timestamps.length).toString()
+    );
+    c.header(
+      "X-RateLimit-Reset",
+      Math.ceil((now + TIME_WINDOW) / 1000).toString()
+    );
+
     // Continue to the next middleware or route handler
     await next();
   } catch (error) {

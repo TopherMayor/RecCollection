@@ -1,11 +1,11 @@
 import { Context, Next } from "hono";
 import { verify } from "jsonwebtoken";
 import { HTTPException } from "hono/http-exception";
-import { rateLimit } from "../utils/rate-limit";
+import { rateLimit } from "../utils/rate-limit.ts";
 
 // Define the user type for the JWT payload
 export interface JWTPayload {
-  id: number;
+  id: string; // Changed to string for UUID support
   username: string;
   email: string;
 }

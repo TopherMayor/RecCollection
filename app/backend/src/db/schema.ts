@@ -309,3 +309,5 @@ export type Collection = InferSelectModel<typeof collections>;
 export type NewCollection = InferInsertModel<typeof collections>;
 export type RecipeCollection = InferSelectModel<typeof recipeCollections>;
 export type NewRecipeCollection = InferInsertModel<typeof recipeCollections>;
+export type Ingredient = InferSelectModel<typeof ingredients>;
+export type NewIngredient = InferInsertModel<typeof ingredients>;

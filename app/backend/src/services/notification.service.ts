@@ -1,14 +1,22 @@
-import { db } from "../db";
+import { db } from "../db/index.ts";
 import {
   notifications,
   notificationPreferences,
   userContacts,
   users,
-} from "../db/schema";
+} from "../db/schema.ts";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import { EmailService } from "./email.service";
-import { SMSService } from "./sms.service";
+import { EmailService } from "./email.service.ts";
+import { SMSService } from "./sms.service.ts";
+
+// Define sender interface
+interface Sender {
+  id: number;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+}
 
 // Define notification types
 export type NotificationType =
@@ -378,11 +386,12 @@ export class NotificationService {
 
         // Add sender information if available
         if (notification.sender) {
+          const sender = notification.sender as Sender;
           result.sender = {
-            id: notification.sender.id,
-            username: notification.sender.username,
-            displayName: notification.sender.displayName,
-            avatarUrl: notification.sender.avatarUrl,
+            notificationId: sender.id,
+            recipientUsername: sender.username,
+            displayName: sender.displayName,
+            avatarUrl: sender.avatarUrl,
           };
         }
 
@@ -481,7 +490,10 @@ export class NotificationService {
           and(eq(notifications.userId, userId), eq(notifications.read, false))
         );
 
-      return result.rowCount || 0;
+      return (
+        (result as unknown as { affectedRowsCount: number })
+          .affectedRowsCount || 0
+      );
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
       if (error instanceof HTTPException) {

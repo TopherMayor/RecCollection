@@ -1,10 +1,10 @@
-import { db } from "../db";
-import { sharedRecipes, recipes, users } from "../db/schema";
+import { db } from "../db/index.ts";
+import { sharedRecipes, recipes, users } from "../db/schema.ts";
 import { eq, and } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import { EmailService } from "./email.service";
-import { SMSService } from "./sms.service";
-import { NotificationService } from "./notification.service";
+import { EmailService } from "./email.service.ts";
+import { SMSService } from "./sms.service.ts";
+import { NotificationService } from "./notification.service.ts";
 import { nanoid } from "nanoid";
 
 // Share recipe data interface
@@ -52,7 +52,9 @@ export class SharingService {
 
       // Check if user has permission to share the recipe
       if (recipe.userId !== data.sharedBy && recipe.isPrivate) {
-        throw new HTTPException(403, { message: "You don't have permission to share this recipe" });
+        throw new HTTPException(403, {
+          message: "You don't have permission to share this recipe",
+        });
       }
 
       // Get sharer information
@@ -100,13 +102,15 @@ export class SharingService {
           type: "share",
           senderId: data.sharedBy,
           recipeId: data.recipeId,
-          message: `${sharer.displayName || sharer.username} shared your recipe "${recipe.title}" with someone.`,
+          message: `${
+            sharer.displayName || sharer.username
+          } shared your recipe "${recipe.title}" with someone.`,
         });
       }
 
       // Handle different share types
       const sharerName = sharer.displayName || sharer.username;
-      
+
       if (data.shareType === "email") {
         // Send email
         await this.emailService.sendRecipeSharedEmail(
@@ -189,7 +193,9 @@ export class SharingService {
 
       // Check if share has expired
       if (shareRecord.expiresAt && new Date() > shareRecord.expiresAt) {
-        throw new HTTPException(410, { message: "This shared recipe has expired" });
+        throw new HTTPException(410, {
+          message: "This shared recipe has expired",
+        });
       }
 
       return {
@@ -269,10 +275,7 @@ export class SharingService {
       await db
         .delete(sharedRecipes)
         .where(
-          and(
-            eq(sharedRecipes.id, shareId),
-            eq(sharedRecipes.sharedBy, userId)
-          )
+          and(eq(sharedRecipes.id, shareId), eq(sharedRecipes.sharedBy, userId))
         );
 
       return true;
@@ -291,7 +294,7 @@ export class SharingService {
   generateDeepLink(recipeId: number, platform: string): string {
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const webUrl = `${baseUrl}/recipes/${recipeId}`;
-    
+
     // Generate app-specific deep links
     switch (platform.toLowerCase()) {
       case "ios":

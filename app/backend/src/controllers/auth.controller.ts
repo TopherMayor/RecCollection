@@ -1,8 +1,8 @@
 import type { Context } from "hono";
-import { UserService } from "../services/user.service";
+import { UserService } from "../services/user.service.ts";
 import { HTTPException } from "hono/http-exception";
-import type { JWTPayload } from "../middleware/auth";
-import type { RegisterInput, LoginInput } from "../services/user.service";
+import type { JWTPayload } from "../middleware/auth.ts";
+import type { RegisterInput, LoginInput } from "../services/user.service.ts";
 
 // Create an instance of the user service
 const userService = new UserService();
@@ -91,7 +91,8 @@ export class AuthController {
       const user = c.get("user") as JWTPayload;
 
       // Get user details
-      const userDetails = await userService.getUserById(user.id);
+      const userDetails = await userService.getUserById(Number(user.id));
+      console.log("User details fetched successfully:", user.id);
 
       return c.json(userDetails);
     } catch (error) {
@@ -139,7 +140,10 @@ export class AuthController {
       const user = c.get("user") as JWTPayload;
 
       // Update the profile
-      const updatedUser = await userService.updateProfile(user.id, data);
+      const updatedUser = await userService.updateProfile(
+        Number(user.id),
+        data
+      );
 
       return c.json(updatedUser);
     } catch (error) {

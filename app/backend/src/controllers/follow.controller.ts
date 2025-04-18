@@ -1,7 +1,7 @@
 import type { Context } from "hono";
-import { UserService } from "../services/user.service";
+import { UserService } from "../services/user.service.ts";
 import { HTTPException } from "hono/http-exception";
-import { JWTPayload } from "../types";
+import { JWTPayload } from "../middleware/auth.ts";
 
 // Create an instance of the user service
 const userService = new UserService();
@@ -25,12 +25,13 @@ export class FollowController {
       }
 
       // Check if trying to follow self
-      if (currentUser.id === userToFollow.id) {
+      if (Number(currentUser.id) === userToFollow.id) {
         throw new HTTPException(400, { message: "You cannot follow yourself" });
       }
 
       // Follow the user
-      await userService.followUser(currentUser.id, userToFollow.id);
+      await userService.followUser(Number(currentUser.id), userToFollow.id);
+      await userService.isFollowing(Number(currentUser.id), userToFollow.id);
 
       return c.json({
         success: true,
@@ -65,7 +66,7 @@ export class FollowController {
       }
 
       // Unfollow the user
-      await userService.unfollowUser(currentUser.id, userToUnfollow.id);
+      await userService.unfollowUser(Number(currentUser.id), userToUnfollow.id);
 
       return c.json({
         success: true,
@@ -100,7 +101,10 @@ export class FollowController {
       }
 
       // Check if following
-      const result = await userService.isFollowing(currentUser.id, userToCheck.id);
+      const result = await userService.isFollowing(
+        Number(currentUser.id),
+        userToCheck.id
+      );
 
       return c.json({
         success: true,
@@ -137,7 +141,11 @@ export class FollowController {
       // Get followers
       const pageNum = page ? parseInt(page) : 1;
       const limitNum = limit ? parseInt(limit) : 10;
-      const result = await userService.getUserFollowers(user.id, pageNum, limitNum);
+      const result = await userService.getUserFollowers(
+        user.id,
+        pageNum,
+        limitNum
+      );
 
       return c.json({
         success: true,
@@ -175,7 +183,11 @@ export class FollowController {
       // Get following
       const pageNum = page ? parseInt(page) : 1;
       const limitNum = limit ? parseInt(limit) : 10;
-      const result = await userService.getUserFollowing(user.id, pageNum, limitNum);
+      const result = await userService.getUserFollowing(
+        user.id,
+        pageNum,
+        limitNum
+      );
 
       return c.json({
         success: true,

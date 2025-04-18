@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { RecipeController } from "../controllers/recipe.controller";
-import { authenticate, optionalAuthenticate } from "../middleware/auth";
-import { validate, validateQuery } from "../middleware/validation";
+import { RecipeController } from "../controllers/recipe.controller.ts";
+import { authenticate, optionalAuthenticate } from "../middleware/auth.ts";
+import { validate, validateQuery } from "../middleware/validation.ts";
 import {
   recipeSchema,
   recipeUpdateSchema,
   commentSchema,
   searchParamsSchema,
-} from "../utils/validation";
+} from "../utils/validation.ts";
 
 // Create a new router
 const router = new Hono();
@@ -39,8 +39,8 @@ router.get(
 
 // Create a new recipe (requires authentication)
 router.post("/", authenticate, validate(recipeSchema), (c) => {
-  const data = c.get("validated");
-  return recipeController.createRecipe(c, data);
+  const validatedRecipeData = c.get("validated");
+  return recipeController.createRecipe(c, validatedRecipeData);
 });
 
 // Get a recipe by ID (with optional authentication)
@@ -48,8 +48,8 @@ router.get("/:id", optionalAuthenticate, (c) => recipeController.getRecipe(c));
 
 // Update a recipe (requires authentication)
 router.put("/:id", authenticate, validate(recipeUpdateSchema), (c) => {
-  const data = c.get("validated");
-  return recipeController.updateRecipe(c, data);
+  const validatedUpdateData = c.get("validated");
+  return recipeController.updateRecipe(c, validatedUpdateData);
 });
 
 // Delete a recipe (requires authentication)
@@ -72,8 +72,8 @@ router.delete("/:id/like", authenticate, (c) =>
 
 // Add a comment to a recipe (requires authentication)
 router.post("/:id/comments", authenticate, validate(commentSchema), (c) => {
-  const data = c.get("validated");
-  return recipeController.addComment(c, data);
+  const validatedCommentData = c.get("validated");
+  return recipeController.addComment(c, validatedCommentData);
 });
 
 // Get comments for a recipe

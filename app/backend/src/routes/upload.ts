@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { authenticate } from "../middleware/auth";
+import { authenticate } from "../middleware/auth.ts";
 import { HTTPException } from "hono/http-exception";
 import fs from "fs";
 import path from "path";

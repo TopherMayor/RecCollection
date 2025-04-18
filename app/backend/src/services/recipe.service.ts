@@ -1,6 +1,7 @@
 import { eq, and, desc, sql, like, inArray, or } from "drizzle-orm";
-import { db, schema } from "../db";
+import { db, schema } from "../db/index.ts";
 import { HTTPException } from "hono/http-exception";
+import { NotificationService } from "./notification.service.ts";
 
 // Recipe input interface
 export interface RecipeInput {
@@ -240,10 +241,13 @@ export class RecipeService {
             input.ingredients.map((ingredient) => ({
               recipeId: recipe.id,
               name: ingredient.name,
-              quantity: ingredient.quantity,
-              unit: ingredient.unit,
+              quantity:
+                ingredient.quantity !== undefined
+                  ? String(ingredient.quantity)
+                  : null,
+              unit: ingredient.unit || null,
               orderIndex: ingredient.orderIndex,
-              notes: ingredient.notes,
+              notes: ingredient.notes || null,
             }))
           );
         }
@@ -360,7 +364,6 @@ export class RecipeService {
   ) {
     try {
       // Import the notification service
-      const { NotificationService } = await import("./notification.service");
       const notificationService = new NotificationService();
 
       // Get the user who created the recipe
@@ -621,8 +624,8 @@ export class RecipeService {
         const ingredientsToInsert = input.ingredients.map((ing, index) => ({
           recipeId: id,
           name: ing.name,
-          quantity: ing.quantity,
-          unit: ing.unit,
+          quantity: ing.quantity !== undefined ? String(ing.quantity) : null,
+          unit: ing.unit || null,
           notes: ing.notes || null,
           orderIndex: index,
         }));

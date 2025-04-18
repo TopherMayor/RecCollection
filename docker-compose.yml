@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: reccollection-postgres
+    container_name: reccollection-postgres-dev
     ports:
       - "5433:5432"
     environment:
@@ -11,8 +9,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: reccollection
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - reccollection_data:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  reccollection_data:

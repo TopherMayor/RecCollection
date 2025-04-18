@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-reccollection}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - reccollection_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -53,4 +53,4 @@ services:
       - backend
 
 volumes:
-  postgres_data:
+  reccollection_data:

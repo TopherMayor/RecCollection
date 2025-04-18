@@ -1,11 +1,11 @@
 import type { Context } from "hono";
-import { RecipeService } from "../services/recipe.service";
+import { RecipeService } from "../services/recipe.service.ts";
 import { HTTPException } from "hono/http-exception";
-import type { JWTPayload } from "../middleware/auth";
+import type { JWTPayload } from "../middleware/auth.ts";
 import type {
   RecipeInput,
   RecipeSearchParams,
-} from "../services/recipe.service";
+} from "../services/recipe.service.ts";
 
 // Create an instance of the recipe service
 const recipeService = new RecipeService();
@@ -17,7 +17,7 @@ export class RecipeController {
       const user = c.get("user") as JWTPayload;
 
       // Create the recipe
-      const recipe = await recipeService.createRecipe(user.id, data);
+      const recipe = await recipeService.createRecipe(Number(user.id), data);
 
       return c.json(
         {
@@ -52,7 +52,7 @@ export class RecipeController {
       try {
         const user = c.get("user") as JWTPayload | undefined;
         if (user) {
-          userId = user.id;
+          userId = Number(user.id);
           console.log(`User authenticated, ID: ${userId}`);
         } else {
           console.log(`User not authenticated (user object is undefined)`);
@@ -109,7 +109,11 @@ export class RecipeController {
       }
 
       // Update the recipe
-      const recipe = await recipeService.updateRecipe(id, user.id, data);
+      const recipe = await recipeService.updateRecipe(
+        id,
+        Number(user.id),
+        data
+      );
 
       return c.json({
         success: true,
@@ -136,7 +140,7 @@ export class RecipeController {
       }
 
       // Delete the recipe
-      const result = await recipeService.deleteRecipe(id, user.id);
+      const result = await recipeService.deleteRecipe(id, Number(user.id));
 
       return c.json(result);
     } catch (error) {
@@ -185,7 +189,7 @@ export class RecipeController {
       }
 
       // Like the recipe
-      const result = await recipeService.likeRecipe(id, user.id);
+      const result = await recipeService.likeRecipe(id, Number(user.id));
 
       return c.json(result);
     } catch (error) {
@@ -209,7 +213,7 @@ export class RecipeController {
       }
 
       // Unlike the recipe
-      const result = await recipeService.unlikeRecipe(id, user.id);
+      const result = await recipeService.unlikeRecipe(id, Number(user.id));
 
       return c.json(result);
     } catch (error) {
@@ -233,7 +237,11 @@ export class RecipeController {
       }
 
       // Add the comment
-      const comment = await recipeService.addComment(id, user.id, data.content);
+      const comment = await recipeService.addComment(
+        id,
+        Number(user.id),
+        data.content
+      );
 
       return c.json(comment, 201);
     } catch (error) {
@@ -280,7 +288,10 @@ export class RecipeController {
       const user = c.get("user") as JWTPayload;
 
       // Get recipes from followed users
-      const result = await recipeService.getFollowingRecipes(user.id, params);
+      const result = await recipeService.getFollowingRecipes(
+        Number(user.id),
+        params
+      );
 
       return c.json({
         success: true,
@@ -293,33 +304,6 @@ export class RecipeController {
       }
       throw new HTTPException(500, {
         message: "An error occurred while fetching recipes from followed users",
-      });
-    }
-  }
-
-  // Delete a recipe
-  async deleteRecipe(c: Context) {
-    try {
-      const id = parseInt(c.req.param("id"));
-      const user = c.get("user") as JWTPayload;
-
-      if (isNaN(id)) {
-        throw new HTTPException(400, { message: "Invalid recipe ID" });
-      }
-
-      // Delete the recipe
-      const result = await recipeService.deleteRecipe(id, user.id);
-
-      return c.json({
-        success: true,
-        message: "Recipe deleted successfully",
-      });
-    } catch (error) {
-      if (error instanceof HTTPException) {
-        throw error;
-      }
-      throw new HTTPException(500, {
-        message: "An error occurred while deleting the recipe",
       });
     }
   }
@@ -338,7 +322,7 @@ export class RecipeController {
       const results = await Promise.all(
         ids.map(async (id) => {
           try {
-            await recipeService.deleteRecipe(id, user.id);
+            await recipeService.deleteRecipe(id, Number(user.id));
             return { id, success: true };
           } catch (error) {
             return {

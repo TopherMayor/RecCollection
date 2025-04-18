@@ -1,6 +1,9 @@
 import type { Context } from "hono";
-import { UserService, UserSearchParams } from "../services/user.service";
-import { RecipeService, RecipeSearchParams } from "../services/recipe.service";
+import { UserService, UserSearchParams } from "../services/user.service.ts";
+import {
+  RecipeService,
+  RecipeSearchParams,
+} from "../services/recipe.service.ts";
 import { HTTPException } from "hono/http-exception";
 
 // Create instances of the services
@@ -56,13 +59,16 @@ export class SearchController {
   async search(c: Context) {
     try {
       const { q, type, page, limit } = c.req.query();
-      
+
       // Validate query parameter
       if (!q) {
-        return c.json({
-          success: false,
-          error: "Search query is required",
-        }, 400);
+        return c.json(
+          {
+            success: false,
+            error: "Search query is required",
+          },
+          400
+        );
       }
 
       const pageNum = page ? parseInt(page) : 1;

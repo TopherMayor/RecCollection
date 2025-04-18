@@ -1,8 +1,8 @@
 import { eq, sql, like, or, desc, and, count } from "drizzle-orm";
-import { db, schema } from "../db";
-import { hashPassword, verifyPassword, generateToken } from "../utils/auth";
+import { db, schema } from "../db/index.ts";
+import { hashPassword, verifyPassword, generateToken } from "../utils/auth.ts";
 import { HTTPException } from "hono/http-exception";
-
+import { NotificationService } from "./notification.service.ts";
 // User registration input
 export interface RegisterInput {
   username: string;
@@ -356,9 +356,7 @@ export class UserService {
 
     // Create a notification for the user being followed
     try {
-      const { NotificationService } = await import("./notification.service");
       const notificationService = new NotificationService();
-
       await notificationService.createNotification({
         userId: followingId, // The user being followed receives the notification
         type: "follow",

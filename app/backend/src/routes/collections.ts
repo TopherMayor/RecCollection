@@ -1,71 +1,64 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { authenticate as authMiddleware } from "../middleware/auth";
-import * as collectionsService from "../services/collections.service";
+import { authenticate as authMiddleware } from "../middleware/auth.ts";
+import * as collectionsService from "../services/collections.service.ts";
+import { throwError } from "../middleware/error.ts";
 
 const collections = new Hono();
 
 // Apply auth middleware to all routes
 collections.use("*", authMiddleware);
 
+// UUID validation schema
+const uuidSchema = z.string().uuid();
+
 // Get all collections for the authenticated user
 collections.get("/", async (c) => {
-  const userId = c.get("userId");
-
-  try {
-    const userCollections = await collectionsService.getUserCollections(userId);
-    return c.json({ success: true, collections: userCollections });
-  } catch (error) {
-    console.error("Error fetching collections:", error);
-    return c.json(
-      { success: false, message: "Failed to fetch collections" },
-      500
-    );
-  }
+  const userId = c.user.id;
+  const userCollections = await collectionsService.getUserCollections(
+    Number(userId)
+  );
+  return c.json({
+    success: true,
+    collections: userCollections,
+  });
 });
 
 // Get a specific collection by ID
 collections.get("/:id", async (c) => {
-  const userId = c.get("userId");
-  const collectionId = parseInt(c.req.param("id"));
-
-  if (isNaN(collectionId)) {
-    return c.json({ success: false, message: "Invalid collection ID" }, 400);
-  }
+  const userId = c.user.id;
+  const collectionId = c.req.param("id");
 
   try {
-    const collection = await collectionsService.getCollectionById(collectionId);
-
-    if (!collection) {
-      return c.json({ success: false, message: "Collection not found" }, 404);
-    }
-
-    // Check if the collection belongs to the authenticated user
-    if (collection.userId !== userId) {
-      return c.json(
-        { success: false, message: "Unauthorized access to collection" },
-        403
-      );
-    }
-
-    // Get recipes in the collection
-    const collectionRecipes = await collectionsService.getCollectionRecipes(
-      collectionId
-    );
-
-    return c.json({
-      success: true,
-      collection,
-      recipes: collectionRecipes,
-    });
-  } catch (error) {
-    console.error("Error fetching collection:", error);
-    return c.json(
-      { success: false, message: "Failed to fetch collection" },
-      500
-    );
+    uuidSchema.parse(collectionId);
+  } catch {
+    throwError(400, "Invalid collection ID format", "BAD_REQUEST");
   }
+
+  const collection = await collectionsService.getCollectionById(
+    Number(collectionId)
+  );
+
+  if (!collection) {
+    throwError(404, "Collection not found", "NOT_FOUND");
+  }
+
+  // Check if the collection belongs to the authenticated user
+  if (collection.userId !== Number(userId)) {
+    throwError(403, "Unauthorized access to collection", "FORBIDDEN");
+  }
+
+  // Get recipes in the collection
+  const collectionRecipes = await collectionsService.getCollectionRecipes(
+    Number(collectionId)
+  );
+
+  return c.json({
+    success: true,
+    collection,
+    recipes: collectionRecipes,
+  });
 });
 
 // Create a new collection
@@ -75,24 +68,22 @@ const createCollectionSchema = z.object({
 });
 
 collections.post("/", zValidator("json", createCollectionSchema), async (c) => {
-  const userId = c.get("userId");
+  const userId = c.user.id;
   const { name, description } = c.req.valid("json");
 
-  try {
-    const newCollection = await collectionsService.createCollection({
-      userId,
-      name,
-      description: description || null,
-    });
+  const newCollection = await collectionsService.createCollection({
+    userId: Number(userId),
+    name,
+    description: description || null,
+  });
 
-    return c.json({ success: true, collection: newCollection }, 201);
-  } catch (error) {
-    console.error("Error creating collection:", error);
-    return c.json(
-      { success: false, message: "Failed to create collection" },
-      500
-    );
-  }
+  return c.json(
+    {
+      success: true,
+      collection: newCollection,
+    },
+    201
+  );
 });
 
 // Update a collection
@@ -105,86 +96,73 @@ collections.put(
   "/:id",
   zValidator("json", updateCollectionSchema),
   async (c) => {
-    const userId = c.get("userId");
-    const collectionId = parseInt(c.req.param("id"));
+    const userId = c.user.id;
+    const collectionId = c.req.param("id");
     const updates = c.req.valid("json");
 
-    if (isNaN(collectionId)) {
-      return c.json({ success: false, message: "Invalid collection ID" }, 400);
-    }
-
     try {
-      // Check if collection exists and belongs to user
-      const collection = await collectionsService.getCollectionById(
-        collectionId
-      );
-
-      if (!collection) {
-        return c.json({ success: false, message: "Collection not found" }, 404);
-      }
-
-      if (collection.userId !== userId) {
-        return c.json(
-          { success: false, message: "Unauthorized access to collection" },
-          403
-        );
-      }
-
-      // Update the collection
-      const updatedCollection = await collectionsService.updateCollection(
-        collectionId,
-        updates
-      );
-
-      return c.json({ success: true, collection: updatedCollection });
-    } catch (error) {
-      console.error("Error updating collection:", error);
-      return c.json(
-        { success: false, message: "Failed to update collection" },
-        500
-      );
+      uuidSchema.parse(collectionId);
+    } catch {
+      throwError(400, "Invalid collection ID format", "BAD_REQUEST");
     }
+
+    // Check if collection exists and belongs to user
+    const collection = await collectionsService.getCollectionById(
+      Number(collectionId)
+    );
+
+    if (!collection) {
+      throwError(404, "Collection not found", "NOT_FOUND");
+    }
+
+    if (collection.userId !== Number(userId)) {
+      throwError(403, "Unauthorized access to collection", "FORBIDDEN");
+    }
+
+    // Update the collection
+    const updatedCollection = await collectionsService.updateCollection(
+      Number(collectionId),
+      updates
+    );
+
+    return c.json({
+      success: true,
+      collection: updatedCollection,
+    });
   }
 );
 
 // Delete a collection
 collections.delete("/:id", async (c) => {
-  const userId = c.get("userId");
-  const collectionId = parseInt(c.req.param("id"));
-
-  if (isNaN(collectionId)) {
-    return c.json({ success: false, message: "Invalid collection ID" }, 400);
-  }
+  const userId = c.user.id;
+  const collectionId = c.req.param("id");
 
   try {
-    // Check if collection exists and belongs to user
-    const collection = await collectionsService.getCollectionById(collectionId);
-
-    if (!collection) {
-      return c.json({ success: false, message: "Collection not found" }, 404);
-    }
-
-    if (collection.userId !== userId) {
-      return c.json(
-        { success: false, message: "Unauthorized access to collection" },
-        403
-      );
-    }
-
-    // Delete the collection
-    await collectionsService.deleteCollection(collectionId);
-
-    return c.json({
-      success: true,
-      message: "Collection deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting collection:", error);
-    return c.json(
-      { success: false, message: "Failed to delete collection" },
-      500
-    );
+    uuidSchema.parse(collectionId);
+  } catch {
+    throwError(400, "Invalid collection ID format", "BAD_REQUEST");
   }
+
+  // Check if collection exists and belongs to user
+  const collection = await collectionsService.getCollectionById(
+    Number(collectionId)
+  );
+
+  if (!collection) {
+    throwError(404, "Collection not found", "NOT_FOUND");
+  }
+
+  if (collection.userId !== Number(userId)) {
+    throwError(403, "Unauthorized access to collection", "FORBIDDEN");
+  }
+
+  // Delete the collection
+  await collectionsService.deleteCollection(Number(collectionId));
+
+  return c.json({
+    success: true,
+    message: "Collection deleted successfully",
+  });
 });
 
 // Add a recipe to a collection
@@ -196,87 +174,84 @@ collections.post(
   "/:id/recipes",
   zValidator("json", addRecipeSchema),
   async (c) => {
-    const userId = c.get("userId");
-    const collectionId = parseInt(c.req.param("id"));
+    const userId = c.user.id;
+    const collectionId = c.req.param("id");
     const { recipeId } = c.req.valid("json");
 
-    if (isNaN(collectionId)) {
-      return c.json({ success: false, message: "Invalid collection ID" }, 400);
-    }
-
     try {
-      // Check if collection exists and belongs to user
-      const collection = await collectionsService.getCollectionById(
-        collectionId
-      );
-
-      if (!collection) {
-        return c.json({ success: false, message: "Collection not found" }, 404);
-      }
-
-      if (collection.userId !== userId) {
-        return c.json(
-          { success: false, message: "Unauthorized access to collection" },
-          403
-        );
-      }
-
-      // Add recipe to collection
-      const recipeCollection = await collectionsService.addRecipeToCollection(
-        recipeId,
-        collectionId
-      );
-
-      return c.json({ success: true, recipeCollection }, 201);
-    } catch (error) {
-      console.error("Error adding recipe to collection:", error);
-      return c.json(
-        { success: false, message: "Failed to add recipe to collection" },
-        500
-      );
+      uuidSchema.parse(collectionId);
+    } catch {
+      throwError(400, "Invalid collection ID format", "BAD_REQUEST");
     }
+
+    // Check if collection exists and belongs to user
+    const collection = await collectionsService.getCollectionById(
+      Number(collectionId)
+    );
+
+    if (!collection) {
+      throwError(404, "Collection not found", "NOT_FOUND");
+    }
+
+    if (collection.userId !== Number(userId)) {
+      throwError(403, "Unauthorized access to collection", "FORBIDDEN");
+    }
+
+    // Add recipe to collection
+    const recipeCollection = await collectionsService.addRecipeToCollection(
+      recipeId,
+      Number(collectionId)
+    );
+
+    return c.json(
+      {
+        success: true,
+        recipeCollection,
+      },
+      201
+    );
   }
 );
 
 // Remove a recipe from a collection
 collections.delete("/:id/recipes/:recipeId", async (c) => {
-  const userId = c.get("userId");
-  const collectionId = parseInt(c.req.param("id"));
+  const userId = c.user.id;
+  const collectionId = c.req.param("id");
   const recipeId = parseInt(c.req.param("recipeId"));
 
-  if (isNaN(collectionId) || isNaN(recipeId)) {
-    return c.json(
-      { success: false, message: "Invalid collection or recipe ID" },
-      400
-    );
-  }
-
   try {
-    // Check if collection exists and belongs to user
-    const collection = await collectionsService.getCollectionById(collectionId);
-
-    if (!collection) {
-      return c.json({ success: false, message: "Collection not found" }, 404);
-    }
-
-    if (collection.userId !== userId) {
-      return c.json(
-        { success: false, message: "Unauthorized access to collection" },
-        403
-      );
-    }
-
-    // Remove recipe from collection
-    await collectionsService.removeRecipeFromCollection(recipeId, collectionId);
-
-    return c.json({ success: true, message: "Recipe removed from collection" });
-  } catch (error) {
-    console.error("Error removing recipe from collection:", error);
-    return c.json(
-      { success: false, message: "Failed to remove recipe from collection" },
-      500
-    );
+    uuidSchema.parse(collectionId);
+  } catch {
+    throwError(400, "Invalid collection ID format", "BAD_REQUEST");
   }
+
+  if (isNaN(recipeId)) {
+    throwError(400, "Invalid recipe ID", "BAD_REQUEST");
+  }
+
+  // Check if collection exists and belongs to user
+  const collection = await collectionsService.getCollectionById(
+    Number(collectionId)
+  );
+
+  if (!collection) {
+    throwError(404, "Collection not found", "NOT_FOUND");
+  }
+
+  if (collection.userId !== Number(userId)) {
+    throwError(403, "Unauthorized access to collection", "FORBIDDEN");
+  }
+
+  // Remove recipe from collection
+  await collectionsService.removeRecipeFromCollection(
+    recipeId,
+    Number(collectionId)
+  );
+
+  return c.json({
+    success: true,
+    message: "Recipe removed from collection",
+  });
 });
 
 export default collections;

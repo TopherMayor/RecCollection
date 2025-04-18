@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./schema";
-import * as relations from "./relations";
+import * as schema from "./schema.ts";
+import * as relations from "./relations.ts";
 
 // Get the database connection string from environment variables
 const connectionString =
