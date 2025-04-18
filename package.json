@@ -2,6 +2,11 @@
   "name": "reccollection",
   "version": "1.0.0",
   "description": "A recipe collection application",
+  "workspaces": [
+    "app/frontend",
+    "app/backend",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "cd app/frontend && npm run dev",
     "dev:bun": "cd app/frontend && bun run dev",
@@ -42,6 +47,7 @@
   "devDependencies": {
     "concurrently": "^8.2.2",
     "cypress": "^14.2.1",
-    "start-server-and-test": "^2.0.11"
+    "start-server-and-test": "^2.0.11",
+    "turbo": "^2.5.0"
   }
 }
