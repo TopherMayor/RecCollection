@@ -26,6 +26,7 @@
 ### Changes Made
 
 1. **Frontend Optimization**:
+
    - Modified the `NotificationBell` component to accept an `isMobile` prop to distinguish between desktop and mobile instances
    - Added a global interval ID to ensure only one polling interval exists across multiple component instances
    - Added a flag to prevent concurrent API requests
@@ -34,6 +35,7 @@
    - Added logging to help debug API call frequency
 
 2. **Backend Optimization**:
+
    - Implemented an in-memory cache for unread notification counts with a 30-second expiration
    - Added cache invalidation when notifications are marked as read or deleted
    - Added rate limiting middleware with different limits for read and write operations
@@ -55,6 +57,7 @@
 ### Testing
 
 The implementation was tested by:
+
 1. Monitoring API calls in the browser console
 2. Verifying that the unread count is correctly displayed
 3. Testing notification interactions (marking as read, deleting)
@@ -68,6 +71,7 @@ The implementation was tested by:
 ### Last Updated: May 16, 2024
 
 #### Recently Completed Tasks
+
 - Optimized notification system to reduce API calls and improve performance (TASK-022)
 - Added backend caching for notification counts
 - Implemented rate limiting for notification endpoints
@@ -76,14 +80,17 @@ The implementation was tested by:
 - Fixed backend server port configuration to consistently use port 3001
 
 #### In Progress Tasks
+
 - None currently in progress
 
 #### Next Up Tasks
+
 - Implement user notifications for social interactions
 - Add recipe collections/folders feature
 - Enhance mobile responsiveness
 
 #### Known Issues
+
 - Backend server has some compatibility issues when running with Node.js/npm - currently works best with Bun
 ```
 
@@ -92,5 +99,27 @@ The implementation was tested by:
 1. **Monitor Performance**: Continue monitoring the notification system's performance in production to ensure the optimizations are effective.
 
 2. **Consider WebSockets**: For future improvements, consider implementing WebSockets for real-time notifications instead of polling.
+
+## Branch Creation: api-docs-refactor
+
+**2025-04-18 11:28:05** - Created new branch `api-docs-refactor` from `main` to:
+
+- Restructure API documentation for better readability
+- Add examples for all endpoints
+- Include response schemas
+- Document error codes
+
+**Task Status**:
+
+- [x] Branch created
+- [ ] Documentation updated
+- [ ] Review completed
+- [ ] Merged to main
+
+**Push Coordination**:
+
+- Will push to remote after initial documentation updates are complete
+- Requires review from @backend-team before merging
+- Target merge date: 2025-04-20
 
 3. **Distributed Caching**: If the application scales to multiple backend instances, consider implementing a distributed caching solution (like Redis) instead of in-memory caching.
